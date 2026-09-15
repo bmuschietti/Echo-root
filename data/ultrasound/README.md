@@ -1,0 +1,4 @@
+Hubieron 3 meidicones distintas.
+1. **Primera medición**: Sobre "raices" impresas en 3D gruesas. De esta raiz tenemos el ground truth en data/ground_truth/raiz.stl - la velocidad de captura era de 12.5mm/seg.
+2. **Segunda medición**: Sobre "raíces" impresas en 3D. Estas tenian forma de 3 palos. También porbamos tomando capturas de unos cables par ver si era más similar a una ríz de verdad. De estas no tengo ground truth. Cada medición se hizo con otro modo del ecografo para evaluar cual era mejor - la velocidad de captura era de 12.5mm/seg
+3. **Raices reales**: Sobre raíces reales - La velocidad de captura en este caso era de 25mm/seg
