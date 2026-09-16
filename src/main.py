@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 import SimpleITK as sitk
 from utils.dicom_utils import extract_video, rename_dicom_files_sequentially
-from volumeReconstructor import VolumeReconstructor
+from VolumeReconstructor import VolumeReconstructor
 from volumeRegistrator import VolumeRegistrator
 from preprocessing import frangi_3d_filter
 
