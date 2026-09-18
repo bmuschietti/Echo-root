@@ -11,24 +11,24 @@ from preprocessing import frangi_3d_filter
 # # ------------------- SET UP ------------------
 # # Extract videos from DICOM files
 
-# print("\n" + "="*50)
-# print("VIDEO EXTRACTION")
-# print("="*50)
+print("\n" + "="*50)
+print("VIDEO EXTRACTION")
+print("="*50)
 
 
-# input_dir = 'data/ultrasound/raices/1'
+input_dir = 'data/ultrasound/primera_medicion'
 
-# rename_dicom_files_sequentially(input_dir)
+rename_dicom_files_sequentially(input_dir)
 
-# for filename in os.listdir(input_dir):
+for filename in os.listdir(input_dir):
         
-#     input_path = os.path.join(input_dir, filename)
-#     if os.path.isfile(input_path):
-#         try:
-#             video_path = extract_video(input_path)
-#             print(f"Video extracted in: {video_path}")
-#         except Exception as e:
-#             print(f"Could not extract video from {input_path}: {e}")
+    input_path = os.path.join(input_dir, filename)
+    if os.path.isfile(input_path):
+        try:
+            video_path = extract_video(input_path)
+            print(f"Video extracted in: {video_path}")
+        except Exception as e:
+            print(f"Could not extract video from {input_path}: {e}")
 
 extracted_videos_dir = 'data/videos'
 

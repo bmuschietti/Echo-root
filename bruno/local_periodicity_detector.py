@@ -145,8 +145,7 @@ def harmonic_score(ac, lag, max_harmonics=10, tolerance=5, min_correlation=0.15)
       (b) la ventana de búsqueda de ese armónico no se solapa con la del
           armónico siguiente (punto 3) -> tolerance debe ser < lag/2.
 
-    Si no se llegan a completar `max_harmonics` armónicos válidos,
-    se descarta el lag por completo (score 0, punto 6).
+
     """
     n = len(ac)
 
@@ -239,7 +238,7 @@ def local_periodicity_maps(
 
             best_lag, best_score, best_n_harmonics = None, -1.0, 0
             for lag in lag_range:
-                h_score, n_harm = harmonic_score(ac, lag, max_harmonics=10, tolerance=5, min_correlation=0.15)
+                h_score, n_harm = harmonic_score(ac, lag, max_harmonics=8, tolerance=5, min_correlation=0.20)
                 if h_score > best_score:
                     best_lag, best_score, best_n_harmonics = lag, h_score, n_harm
 
@@ -283,7 +282,7 @@ def plot_maps(bscan, result, combined_threshold=None):
     decay_map = result["decay_map"]
     n_harmonics_map = result["n_harmonics_map"]
 
-    n_plots = 4 + (1 if decay_map is not None else 0) + (1 if combined_threshold else 0)
+    n_plots = 3 + (1 if decay_map is not None else 0) + (1 if combined_threshold else 0)
     fig, axes = plt.subplots(1, n_plots, figsize=(5 * n_plots, 5))
 
     axes[0].imshow(bscan, cmap="gray")
@@ -301,19 +300,19 @@ def plot_maps(bscan, result, combined_threshold=None):
     axes[3].set_title("N° de armónicos encontrados")
     fig.colorbar(im2b, ax=axes[3], fraction=0.046)
 
-    idx = 4
-    if decay_map is not None:
-        im3 = axes[idx].imshow(decay_map, cmap="magma", aspect="auto")
-        axes[idx].set_title("Score de decaimiento")
-        fig.colorbar(im3, ax=axes[idx], fraction=0.046)
-        idx += 1
+    # idx = 4
+    # if decay_map is not None:
+    #     im3 = axes[idx].imshow(decay_map, cmap="magma", aspect="auto")
+    #     axes[idx].set_title("Score de decaimiento")
+    #     fig.colorbar(im3, ax=axes[idx], fraction=0.046)
+    #     idx += 1
 
-    if combined_threshold is not None:
-        mask = score_map >= combined_threshold
-        axes[idx].imshow(mask, cmap="gray")
-        axes[idx].set_title(f"Máscara score >= {combined_threshold} (exploratorio)")
+    # if combined_threshold is not None:
+    #     mask = score_map >= combined_threshold
+    #     axes[idx].imshow(mask, cmap="gray")
+    #     axes[idx].set_title(f"Máscara score >= {combined_threshold} (exploratorio)")
 
-    plt.tight_layout()
+    #plt.tight_layout()
     return fig
 
 
@@ -336,8 +335,8 @@ def plot_frame_with_grid(bscan, grid_step=10):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    DICOM_PATH = "data/ultrasound/primera_medicion/001.dcm"
-    FRAME_IDX = 118
+    DICOM_PATH = "data/ultrasound/raices reales/1/001.dcm"
+    FRAME_IDX = 150
     CROP = (365, 650, 115, 690)  # x_min, x_max, y_min, y_max
 
     bscan_crop = load_bscan(DICOM_PATH, FRAME_IDX, crop=CROP)
@@ -349,7 +348,8 @@ if __name__ == "__main__":
     result = local_periodicity_maps(
         bscan_crop,
         window_y=80,
-        window_x=1,
+        window_x=5,
+        stride_x=5,
         min_lag=10,
         max_lag=16,
         compute_decay=True,
@@ -359,5 +359,6 @@ if __name__ == "__main__":
     print("score_map shape:", result["score_map"].shape)
 
     fig = plot_maps(bscan_crop, result)
-    fig.savefig("periodicity_maps.png", dpi=150)
+    plt.show()
+    #fig.savefig("periodicity_maps.png", dpi=150)
     print("Guardado periodicity_maps.png")

@@ -1,0 +1,41 @@
+Soy doctorando en ciencia de datos. Estoy trabajando en continuar un proyecto de procesamiento de imágenes con un sistema llamado echo root. Básicamente es una maquina que adquiere un ultra sonido de las raíces de las plantas (dentro de la maceta). esta maquina ya funciona y produce un archivo .dcm (DICOM) por cada escaneo. por otro lado ya hay avanzado un poco de software (codigo) para el procesamiento de los datos. por lo que entendí la idea es tomar 6 mediciones por planta (rotaciones) y crear con esas 6 un único volumen. el problema vigente es que del ultrasonido hay bastante reverberación y ruido que afecta un poco el análisis. mi trabajo es intentar continuar con el procesamiento tratando de llegar a algo mas limpio.
+
+El código main que tiene ahora está estructurado de la siguiente manera:
+
+- VOLUME RECONSTRUCCIÓN:
+	-Extract videos from DICOM files
+	-Generate volume reconstruction for each view
+	-stacks each frame into a 3D volume where each cut is a z plane
+	-It also crops each frame so only the ultrasound region is kept.
+	-llama a una clase propia VOLUMERECONSTRUCTOR(): esta tiene un método propio para crear el volumen
+
+VOLUME PREPROCESSING:
+	-Apply Frangi with optimized parameters for ultrasound root detection
+	-llama a una clase propia para  Apply 3D Frangi vesselness filter to enhance tubular root structures.
+
+REGISTRATION:
+	-Perform volume registration and fusión
+	-para esto usa la clase propia VolumeRegistrator()
+	-VolumeRegistrator for fusing multiple volumes in a hexagonal pattern
+	-Load all volume files from the volumes directory
+	-Create a larger reference volume for hexagonal fusion based on the first volume.
+	-Register and fuse all loaded volumes into a single hexagonal volumen
+
+SEGMENTATION:
+	-Gaussian filter	
+	-Median filter  removes noise
+	-Otsu thresholding  segments the object from the background
+	-Optional morphological operations (binaryFillsHoles/BinaryMorphologicalOpening)
+
+GUARDA EL ARCHIVO.
+
+
+Por ahora estoy trabajando por separado buscando métodos que me permitan filtrar la reverb sobre frames por separado.
+Quiero que seas completamente objetivo, sin ningún tipo de emoción de por medio, es simplemente un trabajo de investigación.
+Cualquier duda que tengas pregúntame, no asumas cosas porque sí. Tomate tu tiempo para pensar no saques conclusiones apresuradas. 
+Ademas quiero que las respuestas sean cortas y concisas, que respondan precisamente la pregunta y no se extiendan a menos que lo pido.
+No quiero que te mandes a hacer un codigo, script o lo que sea sin que yo lo pida. Lo mismo con tomar decisiones por adelantado
+
+    					
+
+ 
