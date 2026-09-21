@@ -9,7 +9,7 @@ FRAME_IDX = 109
 CROP = (365, 650, 115, 690)
 
 # Longitud horizontal mínima que queremos resaltar
-LINE_LENGTH = 10
+LINE_LENGTH = 25
 
 def main():
     bscan = load_bscan(DICOM_PATH, FRAME_IDX, crop=CROP)
@@ -22,7 +22,7 @@ def main():
     response = white_tophat(img, footprint=footprint)
 
     # Umbral robusto
-    threshold = np.percentile(response, 98)
+    threshold = np.percentile(response, 99)
     mask = response >= threshold
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 6))

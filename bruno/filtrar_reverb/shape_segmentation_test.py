@@ -31,7 +31,7 @@ FRAME_IDX = 118                           # ajustar
 CROP = (365, 650, 115, 690)                              # ej: (x_min, x_max, y_min, y_max)
 
 MIN_BLOB_AREA = 0       # descartar blobs más chicos que esto (ruido suelto)
-OPENING_RADIUS = 1       # limpieza morfológica opcional (0 para desactivar)
+OPENING_RADIUS = 0       # limpieza morfológica opcional (0 para desactivar)
 
 
 def segment_and_measure(bscan):
