@@ -11,7 +11,7 @@ from scipy.ndimage import map_coordinates
 import pydicom
 import nibabel as nib
 from PIL import Image
-import napari
+
 import matplotlib.pyplot as plt
 
 
@@ -172,17 +172,16 @@ def fusionar_volumenes(volumenes, apotema_mm, mm_per_pixel_xy,
             )
             acumulador[i, z, :] = valores
 
-    if metodo == "promedio":
-        fusionado = np.nanmean(acumulador, axis=0)
-    elif metodo == "mediana":
-        fusionado = np.nanmedian(acumulador, axis=0)
-    elif metodo == "maximo":
-        fusionado = np.nanmax(acumulador, axis=0)
-    else:
-        raise ValueError(f"Método desconocido: {metodo}")
+
+    #Método de calcular los valores de los pixeles globales
+
+    cobertura = np.sum(~np.isnan(acumulador), axis=0) #la suma de todos los vol para un pixel
+    factor_cobertura = cobertura / N_CARAS 
+    fusionado = np.nanmedian(acumulador, axis=0) * factor_cobertura #tomamos la mediana ponderada por la cobertura
 
     fusionado = fusionado.reshape(z_px, lado_px, lado_px)
     fusionado = np.nan_to_num(fusionado, nan=0.0)
+
 
     return fusionado
 
@@ -214,7 +213,7 @@ if __name__ == "__main__":
         apotema_mm=APOTEMA_MM,
         mm_per_pixel_xy=MM_PER_PIXEL_XY,
         mm_per_pixel_z=mm_por_frame_z,
-        metodo="promedio",
+        metodo="mediana",
     )
     print(resultado.shape)
 
@@ -225,6 +224,6 @@ if __name__ == "__main__":
      resultado,
      mm_per_pixel_xy=MM_PER_PIXEL_XY,
      mm_por_frame_z=mm_por_frame_z,
-     path_salida="bruno/volumenes/volumen_fusionado.nii.gz",
+     path_salida="bruno/volumenes/volumen_fusionado_mediana.nii.gz",
  )
     
