@@ -29,7 +29,7 @@ from fusion_hexagonal import (
     APOTEMA_MM,
 )
 
-UMBRAL_INTENSIDAD = 0 #UMBRAL QUE AMBOS VOLUMENES DEBEN SUPERAR PARA QUE SE CONSIDERE RAIZ Y NO REVERB
+UMBRAL_INTENSIDAD = 15 #UMBRAL QUE AMBOS VOLUMENES DEBEN SUPERAR PARA QUE SE CONSIDERE RAIZ Y NO REVERB
 
 
 def fusionar_par_opuesto(vol_a, vol_b, umbral_intensidad):
@@ -78,20 +78,39 @@ def ver_corte_axial(vol_a, vol_b, fusionado, z=None,):
     plt.tight_layout()
     plt.show()
 
+def overlay(a, b):
+    rgb = np.zeros((*a.shape, 3))
+    rgb[...,0] = a / a.max()
+    rgb[...,1] = b / b.max()
+    return rgb
+
+
+def n_frames(path):
+    ds = pydicom.dcmread(path)
+    return ds.pixel_array.shape[0]
 
 if __name__ == "__main__":
-    # Completar rutas reales de un par de caras opuestas, ej. cara 0 y cara 3.
-    ds0 = pydicom.dcmread("data/ultrasound/primera_medicion/001.dcm")
-    mm_por_frame_z = calcular_mm_por_frame_z(ds0.FrameTimeVector)
+    #ds0 = pydicom.dcmread("data/ultrasound/primera_medicion/001.dcm")
+    #mm_por_frame_z = calcular_mm_por_frame_z(ds0.FrameTimeVector)
     
     vol_a = cargar_volumen("data/ultrasound/primera_medicion/001.dcm")
     vol_b = cargar_volumen("data/ultrasound/primera_medicion/004.dcm")
+
+    print(n_frames("data/ultrasound/raices reales/1/001.dcm"), n_frames("data/ultrasound/raices reales/1/004.dcm"))
     
     resultado_par = fusionar_par_opuesto(
         vol_a, vol_b,
         umbral_intensidad= UMBRAL_INTENSIDAD
     )
-    
+
     vol_b_rotado = vol_b[:, ::-1, ::-1]
-    ver_corte_axial(vol_a, vol_b_rotado, resultado_par, z=118)
+
+    for z in [10, vol_a.shape[0]//2, vol_a.shape[0]-10]:
+        plt.figure()
+        plt.imshow(overlay(vol_a[z], vol_b_rotado[z]))
+        plt.title(f"z={z}")
+    plt.show()
+    
+
+    ver_corte_axial(vol_a, vol_b_rotado, resultado_par, z=90)
 
