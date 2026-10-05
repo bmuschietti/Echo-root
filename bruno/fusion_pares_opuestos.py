@@ -96,7 +96,7 @@ if __name__ == "__main__":
     vol_a = cargar_volumen("data/ultrasound/primera_medicion/001.dcm")
     vol_b = cargar_volumen("data/ultrasound/primera_medicion/004.dcm")
 
-    print(n_frames("data/ultrasound/raices reales/1/001.dcm"), n_frames("data/ultrasound/raices reales/1/004.dcm"))
+    print(n_frames("data/ultrasound/primera_medicion/001.dcm"), n_frames("data/ultrasound/primera_medicion/004.dcm"))
     
     resultado_par = fusionar_par_opuesto(
         vol_a, vol_b,
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     vol_b_rotado = vol_b[:, ::-1, ::-1]
 
-    for z in [10, vol_a.shape[0]//2, vol_a.shape[0]-10]:
+    for z in [109,110,111]:
         plt.figure()
         plt.imshow(overlay(vol_a[z], vol_b_rotado[z]))
         plt.title(f"z={z}")
