@@ -71,7 +71,7 @@ def ver_corte_axial(vol_a, vol_b, fusionado, z=None,):
     axes[1].imshow(vol_b[z, :, :], cmap="gray")
     axes[1].set_title(f"Vol B (z={z})")
 
-    axes[2].imshow(fusionado[z, :, :], cmap="gray")
+    axes[2].imshow(overlay(vol_a[z], vol_b_rotado[z]), cmap="gray")
     axes[2].set_title(f"Fusionado (z={z})")
 
 
@@ -105,12 +105,12 @@ if __name__ == "__main__":
 
     vol_b_rotado = vol_b[:, ::-1, ::-1]
 
-    for z in [109,110,111]:
+    for z in [10,110,230]:
         plt.figure()
         plt.imshow(overlay(vol_a[z], vol_b_rotado[z]))
         plt.title(f"z={z}")
     plt.show()
     
 
-    ver_corte_axial(vol_a, vol_b_rotado, resultado_par, z=90)
+    ver_corte_axial(vol_a, vol_b_rotado, resultado_par, z=110)
 
