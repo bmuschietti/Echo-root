@@ -1,66 +1,44 @@
 import pydicom
 import numpy as np
-import matplotlib.pyplot as plt
-from PIL import Image
 
-def extraer_metadata_echoroot(path):
-    ds = pydicom.dcmread(path)
-    datos = {}
+# Ruta al DICOM
+dcm = pydicom.dcmread("data/ultrasound/primera_medicion/004.dcm")
 
-    # --- Escala espacial (x, y) ---
-    if hasattr(ds, "SequenceOfUltrasoundRegions"):
-        for i, region in enumerate(ds.SequenceOfUltrasoundRegions):
-            datos[f"region_{i}_PhysicalDeltaX"] = getattr(region, "PhysicalDeltaX", None)
-            datos[f"region_{i}_PhysicalDeltaY"] = getattr(region, "PhysicalDeltaY", None)
-            datos[f"region_{i}_UnitsX"] = getattr(region, "PhysicalUnitsXDirection", None)
-            datos[f"region_{i}_UnitsY"] = getattr(region, "PhysicalUnitsYDirection", None)
-            datos[f"region_{i}_RegionLocationMinX0"] = getattr(region, "RegionLocationMinX0", None)
-            datos[f"region_{i}_RegionLocationMaxX1"] = getattr(region, "RegionLocationMaxX1", None)
-            datos[f"region_{i}_RegionLocationMinY0"] = getattr(region, "RegionLocationMinY0", None)
-            datos[f"region_{i}_RegionLocationMaxY1"] = getattr(region, "RegionLocationMaxY1", None)
-    else:
-        datos["SequenceOfUltrasoundRegions"] = None
+print("=== DICOM ===")
+print("Rows:", getattr(dcm, "Rows", None))
+print("Columns:", getattr(dcm, "Columns", None))
+print("Number of Frames:", getattr(dcm, "NumberOfFrames", None))
 
-    # --- Dimensiones del frame (para saber tamaño en pixeles) ---
-    datos["Rows"] = getattr(ds, "Rows", None)
-    datos["Columns"] = getattr(ds, "Columns", None)
-    datos["NumberOfFrames"] = getattr(ds, "NumberOfFrames", None)
+print("\n=== SPACING ===")
+print("Pixel Spacing:", getattr(dcm, "PixelSpacing", None))
+print("Slice Thickness:", getattr(dcm, "SliceThickness", None))
+print("Spacing Between Slices:", getattr(dcm, "SpacingBetweenSlices", None))
 
-    # --- Timing (para escala z, si el barrido es a velocidad constante) ---
-    datos["FrameTime"] = getattr(ds, "FrameTime", None)              # ms entre frames
-    datos["FrameTimeVector"] = getattr(ds, "FrameTimeVector", None)  # si el tiempo entre frames varía
-    datos["CineRate"] = getattr(ds, "CineRate", None)                # frames/seg
-    datos["RecommendedDisplayFrameRate"] = getattr(ds, "RecommendedDisplayFrameRate", None)
-    datos["ActualFrameDuration"] = getattr(ds, "ActualFrameDuration", None)
+print("\n=== ORIENTACIÓN ===")
+print("Image Orientation Patient:",
+      getattr(dcm, "ImageOrientationPatient", None))
+print("Image Position Patient:",
+      getattr(dcm, "ImagePositionPatient", None))
 
-    # --- Info general del equipo/estudio (útil como metadata de referencia) ---
-    datos["Manufacturer"] = getattr(ds, "Manufacturer", None)
-    datos["TransducerType"] = getattr(ds, "TransducerType", None)
-    datos["PhotometricInterpretation"] = getattr(ds, "PhotometricInterpretation", None)
+print("\n=== DIMENSIÓN DEL ARRAY ===")
+print("pixel_array.shape:", dcm.pixel_array.shape)
 
-    return datos
+VELOCIDAD_Z_MM_S = 25.0
 
-if __name__ == "__main__":
-    path = "data/ultrasound/primera_medicion/001.dcm"  # reemplazar
-    datos = extraer_metadata_echoroot(path)
+def calcular_mm_por_frame_z(frame_time_vector_ms, velocidad_mm_s=VELOCIDAD_Z_MM_S):
+    """
+    Calcula el espaciado real en z (mm/frame) a partir del FrameTimeVector
+    del DICOM (tiempo entre frames en ms) y la velocidad conocida del carro.
 
-    path_png = 'data/crop_masks/mascara.png'
-    mascara = np.array(Image.open(path_png).convert("L"))
-    filas = np.any(mascara, axis=1)
-    columnas = np.any(mascara, axis=0)
-    fila_min, fila_max = np.where(filas)[0][[0, -1]]
-    col_min, col_max = np.where(columnas)[0][[0, -1]]
+    frame_time_vector_ms: lista/array de tiempos entre frames (el primer
+    valor suele ser 0, correspondiente al frame inicial).
+    """
+    tiempos = np.array(frame_time_vector_ms, dtype=float)
+    tiempos_validos = tiempos[tiempos > 0]  # descarta el 0 inicial
+    frame_time_promedio_s = np.mean(tiempos_validos) / 1000.0
+    mm_por_frame = velocidad_mm_s * frame_time_promedio_s
+    return mm_por_frame
 
-    print (fila_min, fila_max, col_min, col_max)
-
-    ds = pydicom.dcmread("data/ultrasound/primera_medicion/001.dcm")
-    pixel_array = ds.pixel_array
-
-    frame = pixel_array[0]  # primer frame; cambiar índice para ver otro
-
-    plt.imshow(frame)
-    plt.title(f"Frame 0 - shape {frame.shape}")
-    plt.colorbar()
-    plt.show()
-    # for k, v in datos.items():
-    #     print(f"{k}: {v}")
+mm_por_frame_z = calcular_mm_por_frame_z(dcm.FrameTimeVector)
+print("\n=== ===")
+print(mm_por_frame_z)

@@ -5,7 +5,7 @@ from scipy.ndimage import convolve
 from local_periodicity_detector import load_bscan
 
 DICOM_PATH = "data/ultrasound/primera_medicion/001.dcm"
-FRAME_IDX = 118
+FRAME_IDX = 100
 CROP = (365, 650, 115, 690)
 
 def main():

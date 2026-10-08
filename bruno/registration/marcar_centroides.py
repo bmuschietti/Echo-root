@@ -123,5 +123,5 @@ if __name__ == "__main__":
     vol_b = cargar_volumen("data/ultrasound/primera_medicion/004.dcm")
     vol_b_rotado = vol_b[:, ::-1, ::-1]
 
-    marcar_varios_z(vol_a, vol_b_rotado, [50, 100, 150, 200])
+    marcar_varios_z(vol_a, vol_b_rotado, [109])
     calcular_corrimientos()

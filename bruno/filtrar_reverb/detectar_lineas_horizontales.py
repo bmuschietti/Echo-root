@@ -4,12 +4,13 @@ from skimage.morphology import white_tophat
 
 from local_periodicity_detector import load_bscan
 
-DICOM_PATH = "data/ultrasound/raices reales/1/001.dcm"
-FRAME_IDX = 109
+DICOM_PATH = "data/ultrasound/primera_medicion/001.dcm"
+FRAME_IDX = 108
 CROP = (365, 650, 115, 690)
+perc = 99
 
 # Longitud horizontal mínima que queremos resaltar
-LINE_LENGTH = 25
+LINE_LENGTH = 35
 
 def main():
     bscan = load_bscan(DICOM_PATH, FRAME_IDX, crop=CROP)
@@ -22,7 +23,7 @@ def main():
     response = white_tophat(img, footprint=footprint)
 
     # Umbral robusto
-    threshold = np.percentile(response, 99)
+    threshold = np.percentile(response, perc)
     mask = response >= threshold
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 6))
@@ -34,10 +35,12 @@ def main():
     axes[1].set_title("Respuesta horizontal")
 
     axes[2].imshow(mask, cmap="gray", aspect="auto")
-    axes[2].set_title(f"Detectado (percentil 99.5)")
+    axes[2].set_title(f"Detectado (percentil {perc})")
 
     plt.tight_layout()
     plt.show()
+
+    
 
 if __name__ == "__main__":
     main()

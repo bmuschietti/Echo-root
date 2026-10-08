@@ -53,7 +53,7 @@ def fusionar_par_opuesto(vol_a, vol_b, umbral_intensidad):
     return fusionado
 
 
-def ver_corte_axial(vol_a, vol_b, z=None,):
+def ver_corte_axial(vol_a, vol_b, fusionado, z=None,):
     """
     Grafica el mismo corte (índice z) de vol_a, vol_b y el volumen
     fusionado, lado a lado, para comparar visualmente.
@@ -63,7 +63,7 @@ def ver_corte_axial(vol_a, vol_b, z=None,):
     if z is None:
         z = vol_a.shape[0] // 2
 
-    fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4))
 
     axes[0].imshow(vol_a[z, :, :], cmap="gray")
     axes[0].set_title(f"Vol A (z={z})")
@@ -71,8 +71,8 @@ def ver_corte_axial(vol_a, vol_b, z=None,):
     axes[1].imshow(vol_b[z, :, :], cmap="gray")
     axes[1].set_title(f"Vol B (z={z})")
 
-    # axes[2].imshow(overlay(vol_a[z], vol_b_rotado[z]), cmap="gray")
-    # axes[2].set_title(f"Fusionado (z={z})")
+    axes[2].imshow(fusionado[z, :, :], cmap="gray")
+    axes[2].set_title(f"Fusionado (z={z})")
 
 
     plt.tight_layout()
@@ -93,24 +93,38 @@ if __name__ == "__main__":
     #ds0 = pydicom.dcmread("data/ultrasound/primera_medicion/001.dcm")
     #mm_por_frame_z = calcular_mm_por_frame_z(ds0.FrameTimeVector)
     
-    vol_a = cargar_volumen("data/ultrasound/segunda_medicion/1 solo cable/imagen_2915453920095.dcm")
-    vol_b = cargar_volumen("data/ultrasound/segunda_medicion/1 solo cable/imagen_3026833111564.dcm")
+    vol_a = cargar_volumen("data/ultrasound/primera_medicion/001.dcm")
+    vol_b = cargar_volumen("data/ultrasound/primera_medicion/004.dcm")
 
-    print(n_frames("data/ultrasound/segunda_medicion/1 solo cable/imagen_2915453920095.dcm"), n_frames("data/ultrasound/segunda_medicion/1 solo cable/imagen_3026833111564.dcm"))
+    print(n_frames("data/ultrasound/primera_medicion/001.dcm"), n_frames("data/ultrasound/primera_medicion/004.dcm"))
     
-    # resultado_par = fusionar_par_opuesto(
-    #     vol_a, vol_b,
-    #     umbral_intensidad= UMBRAL_INTENSIDAD
-    # )
+    resultado_par = fusionar_par_opuesto(
+        vol_a, vol_b,
+        umbral_intensidad= UMBRAL_INTENSIDAD
+    )
 
     vol_b_rotado = vol_b[:, ::-1, ::-1]
 
-    # for z in [10,110,230]:
-    #     plt.figure()
-    #     plt.imshow(overlay(vol_a[z], vol_b_rotado[z]))
-    #     plt.title(f"z={z}")
-    # plt.show()
+    output_path = "bruno/volumenes"
+
+    MM_PER_PIXEL_XY = 0.121847
+    MM_PER_FRAME_Z = 1.049983510638298
+
+    vol_nii = np.transpose(vol_a, (2, 1, 0))  # (z, y, x) -> (x, y, z)
+
+    affine = np.diag([MM_PER_PIXEL_XY, MM_PER_PIXEL_XY, MM_PER_FRAME_Z, 1])
+
+    nii = nib.Nifti1Image(vol_nii.astype(np.uint8), affine)
+    nib.save(nii, "bruno/volumenes/vol_1.nii.gz")
+
+    print("Shape guardado (x, y, z):", vol_nii.shape)
+
+    for z in [109,110,111]:
+        plt.figure()
+        plt.imshow(overlay(vol_a[z], vol_b_rotado[z]))
+        plt.title(f"z={z}")
+    plt.show()
     
 
-    ver_corte_axial(vol_a, vol_b_rotado, z=110)
+    ver_corte_axial(vol_a, vol_b_rotado, resultado_par, z=90)
 
