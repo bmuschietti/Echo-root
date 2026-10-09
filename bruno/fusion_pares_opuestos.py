@@ -30,7 +30,8 @@ from fusion_hexagonal import (
 )
 
 UMBRAL_INTENSIDAD = 15 #UMBRAL QUE AMBOS VOLUMENES DEBEN SUPERAR PARA QUE SE CONSIDERE RAIZ Y NO REVERB
-
+CROP_FILA_MIN, CROP_FILA_MAX = 113, 694
+CROP_COL_MIN, CROP_COL_MAX = 365, 652
 
 def fusionar_par_opuesto(vol_a, vol_b, umbral_intensidad):
     """
@@ -105,21 +106,24 @@ if __name__ == "__main__":
 
     vol_b_rotado = vol_b[:, ::-1, ::-1]
 
+    vol_a = vol_a[:, CROP_FILA_MIN:CROP_FILA_MAX, CROP_COL_MIN:CROP_COL_MAX]
+    vol_b_rotado = vol_b_rotado[:, CROP_FILA_MIN:CROP_FILA_MAX, CROP_COL_MIN:CROP_COL_MAX]
+
     output_path = "bruno/volumenes"
 
     MM_PER_PIXEL_XY = 0.121847
     MM_PER_FRAME_Z = 1.049983510638298
 
-    vol_nii = np.transpose(vol_a, (2, 1, 0))  # (z, y, x) -> (x, y, z)
+    # vol_nii = np.transpose(vol_a, (2, 1, 0))  # (z, y, x) -> (x, y, z)
 
-    affine = np.diag([MM_PER_PIXEL_XY, MM_PER_PIXEL_XY, MM_PER_FRAME_Z, 1])
+    # affine = np.diag([MM_PER_PIXEL_XY, MM_PER_PIXEL_XY, MM_PER_FRAME_Z, 1])
 
-    nii = nib.Nifti1Image(vol_nii.astype(np.uint8), affine)
-    nib.save(nii, "bruno/volumenes/vol_1.nii.gz")
+    # nii = nib.Nifti1Image(vol_nii.astype(np.uint8), affine)
+    # nib.save(nii, "bruno/volumenes/vol_1.nii.gz")
 
-    print("Shape guardado (x, y, z):", vol_nii.shape)
+    #print("Shape guardado (x, y, z):", vol_nii.shape)
 
-    for z in [109,110,111]:
+    for z in [45]:
         plt.figure()
         plt.imshow(overlay(vol_a[z], vol_b_rotado[z]))
         plt.title(f"z={z}")

@@ -62,7 +62,7 @@ def cargar_volumen(path_dcm):
     else:
         raise ValueError(f"Forma de pixel_array no esperada: {pixel_array.shape}")
 
-    volumen = volumen[:, CROP_FILA_MIN:CROP_FILA_MAX, CROP_COL_MIN:CROP_COL_MAX]
+    #volumen = volumen[:, CROP_FILA_MIN:CROP_FILA_MAX, CROP_COL_MIN:CROP_COL_MAX]
     return volumen
 
 def calcular_mm_por_frame_z(frame_time_vector_ms, velocidad_mm_s=VELOCIDAD_Z_MM_S):
