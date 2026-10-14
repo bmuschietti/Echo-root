@@ -52,7 +52,7 @@ def mse(a, b):
 def main():
     vol_a = cargar_dicom("data/ultrasound/primera_medicion/001.dcm")
     vol_b = cargar_dicom("data/ultrasound/primera_medicion/004.dcm")
-    out = "bruno/volumenes"
+    out = "bruno/volumenes/registration_1_4"
     os.makedirs(out, exist_ok=True)
 
     print("shapes:", vol_a.shape, vol_b.shape)
@@ -77,12 +77,13 @@ def main():
     p["NumberOfResolutions"] = ["3"]
     p["ImagePyramidSchedule"] = ["8", "8", "1", "4", "4", "1", "2", "2", "1"]
     p["MaximumNumberOfIterations"] = ["500"]
-    p["NumberOfSpatialSamples"] = ["50000"]
+    p["NumberOfSpatialSamples"] = ["200000"]
     p["ResultImagePixelType"] = ["float"]
+    p["ImageSampler"] = ["Full"]
     po.AddParameterMap(p)
 
     resultado, params = itk.elastix_registration_method(
-        fixed, moving, parameter_object=po, log_to_console=True)
+        fixed, moving, parameter_object=po, log_to_console=True,)
 
     res_np = itk.array_from_image(resultado)
     mse_despues = mse(fixed_np, res_np)
@@ -98,11 +99,10 @@ def main():
     print(f"Centro de rotación (mm): {centro}")
 
     # Guardados
-    itk.imwrite(resultado, os.path.join(out, "moving_registrado.nii.gz"))
+    itk.imwrite(resultado, os.path.join(out, "moving_registrado_full.nii.gz"))
     itk.imwrite(fixed, os.path.join(out, "fixed.nii.gz"))
     itk.imwrite(moving, os.path.join(out, "moving_original.nii.gz"))
-    params.WriteParameterFile(params.GetParameterMap(0),
-                              os.path.join(out, "transform_params.txt"))
+    params.WriteParameterFile(os.path.join(out, "transform_params_full.txt"))
 
 
 if __name__ == "__main__":
