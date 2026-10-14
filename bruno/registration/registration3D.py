@@ -107,3 +107,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#producto entre volumene opuestos (pasar a (0,1) y hacer producto para limpiar reverb)
+#hacer esto mismo para el reto de volumenes
+#tratar de registrar los 3 volumenes entre si, capaz usando mascara solo en el centro que comparten
+
+#ademas pasar el stl a volumen, primero se puede hacer en cualquier dimension olvidandonos del escaneo
+#luego con las medidad reales de la raices reescalar a las medidas del escaneo y usar el spacing de este 
