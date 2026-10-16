@@ -50,9 +50,9 @@ def mse(a, b):
 
 
 def main():
-    vol_a = cargar_dicom("data/ultrasound/primera_medicion/001.dcm")
-    vol_b = cargar_dicom("data/ultrasound/primera_medicion/004.dcm")
-    out = "bruno/volumenes/registration_1_4"
+    vol_a = cargar_dicom("data/ultrasound/primera_medicion/003.dcm")
+    vol_b = cargar_dicom("data/ultrasound/primera_medicion/006.dcm")
+    out = "bruno/volumenes/registration_3_6"
     os.makedirs(out, exist_ok=True)
 
     print("shapes:", vol_a.shape, vol_b.shape)
@@ -79,8 +79,22 @@ def main():
     p["MaximumNumberOfIterations"] = ["500"]
     p["NumberOfSpatialSamples"] = ["200000"]
     p["ResultImagePixelType"] = ["float"]
-    p["ImageSampler"] = ["Full"]
+    #p["ImageSampler"] = ["Full"] # mas costoso
     po.AddParameterMap(p)
+    # --- B-spline (segunda etapa, parte del resultado rígido) ---
+    pb = po.GetDefaultParameterMap("bspline")
+    pb["Metric"] = ["AdvancedMeanSquares", "TransformBendingEnergyPenalty"]
+    pb["Metric0Weight"] = ["1.0"]
+    pb["Metric1Weight"] = ["10"]          # peso de la regularización (a ajustar)
+    pb["FinalGridSpacingInPhysicalUnits"] = ["10", "10", "20"]   # mm entre nodos
+    pb["NumberOfResolutions"] = ["3"]
+    pb["GridSpacingSchedule"] = ["4.0", "2.0", "1.0"]
+    pb["ImagePyramidSchedule"] = ["8", "8", "1", "4", "4", "1", "2", "2", "1"]
+    pb["MaximumNumberOfIterations"] = ["500"]
+    pb["NumberOfSpatialSamples"] = ["200000"]
+    #pb["ImageSampler"] = ["Full"]
+    pb["ResultImagePixelType"] = ["float"]
+    po.AddParameterMap(pb)
 
     resultado, params = itk.elastix_registration_method(
         fixed, moving, parameter_object=po, log_to_console=True,)
@@ -94,15 +108,16 @@ def main():
     print(f"MSE antes:   {mse_antes:.4f}")
     print(f"MSE después: {mse_despues:.4f}")
     print(f"rx, ry, rz (rad): {tp[0]:.6f}, {tp[1]:.6f}, {tp[2]:.6f}")
+    
     print(f"rx, ry, rz (deg): {np.degrees(tp[0]):.4f}, {np.degrees(tp[1]):.4f}, {np.degrees(tp[2]):.4f}")
     print(f"tx, ty, tz (mm):  {tp[3]:.4f}, {tp[4]:.4f}, {tp[5]:.4f}")
     print(f"Centro de rotación (mm): {centro}")
 
     # Guardados
-    itk.imwrite(resultado, os.path.join(out, "moving_registrado_full.nii.gz"))
+    itk.imwrite(resultado, os.path.join(out, "moving_registrado_bspline.nii.gz"))
     itk.imwrite(fixed, os.path.join(out, "fixed.nii.gz"))
     itk.imwrite(moving, os.path.join(out, "moving_original.nii.gz"))
-    params.WriteParameterFile(os.path.join(out, "transform_params_full.txt"))
+    params.WriteParameterFile(os.path.join(out, "transform_params_bspline.txt"))
 
 
 if __name__ == "__main__":
