@@ -82,3 +82,10 @@ def rename_dicom_files_sequentially(dicom_folder):
         new_path = os.path.join(dicom_folder, new_filename)
         os.rename(old_path, new_path)
         print(f"{f} -> {new_filename}")
+
+
+if __name__ == "__main__":
+
+    folder = "data/Escaneo 22-7/Vascular"
+
+    rename_dicom_files_sequentially(folder)

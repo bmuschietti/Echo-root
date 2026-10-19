@@ -30,8 +30,8 @@ from fusion_hexagonal import (
 )
 
 UMBRAL_INTENSIDAD = 15 #UMBRAL QUE AMBOS VOLUMENES DEBEN SUPERAR PARA QUE SE CONSIDERE RAIZ Y NO REVERB
-CROP_FILA_MIN, CROP_FILA_MAX = 113, 694
-CROP_COL_MIN, CROP_COL_MAX = 365, 652
+CROP_FILA_MIN, CROP_FILA_MAX = 115, 690
+CROP_COL_MIN, CROP_COL_MAX = 400, 620
 
 def fusionar_par_opuesto(vol_a, vol_b, umbral_intensidad):
     """
@@ -94,36 +94,46 @@ if __name__ == "__main__":
     #ds0 = pydicom.dcmread("data/ultrasound/primera_medicion/001.dcm")
     #mm_por_frame_z = calcular_mm_por_frame_z(ds0.FrameTimeVector)
     
-    vol_a = cargar_volumen("data/ultrasound/primera_medicion/001.dcm")
-    vol_b = cargar_volumen("data/ultrasound/primera_medicion/004.dcm")
+    vol_a = cargar_volumen("data/Escaneo 22-7/Superficial/003.dcm")
+    vol_b = cargar_volumen("data/Escaneo 22-7/Superficial/006.dcm")
 
-    print(n_frames("data/ultrasound/primera_medicion/001.dcm"), n_frames("data/ultrasound/primera_medicion/004.dcm"))
+    print(n_frames("data/Escaneo 22-7/Superficial/003.dcm"), n_frames("data/Escaneo 22-7/Superficial/006.dcm"))
     
-    resultado_par = fusionar_par_opuesto(
-        vol_a, vol_b,
-        umbral_intensidad= UMBRAL_INTENSIDAD
-    )
+    # resultado_par = fusionar_par_opuesto(
+    #     vol_a, vol_b,
+    #     umbral_intensidad= UMBRAL_INTENSIDAD
+    # )
 
-    vol_b_rotado = vol_b[:, ::-1, ::-1]
+    
 
     vol_a = vol_a[:, CROP_FILA_MIN:CROP_FILA_MAX, CROP_COL_MIN:CROP_COL_MAX]
-    vol_b_rotado = vol_b_rotado[:, CROP_FILA_MIN:CROP_FILA_MAX, CROP_COL_MIN:CROP_COL_MAX]
+    vol_b_rotado = vol_b[:, CROP_FILA_MIN:CROP_FILA_MAX, CROP_COL_MIN:CROP_COL_MAX]
 
-    output_path = "bruno/volumenes"
+    vol_b_rotado = vol_b_rotado[:, ::-1, ::-1]
 
-    MM_PER_PIXEL_XY = 0.121847
-    MM_PER_FRAME_Z = 1.049983510638298
+    output_path = "bruno/volumenes/superficial"
 
-    # vol_nii = np.transpose(vol_a, (2, 1, 0))  # (z, y, x) -> (x, y, z)
+    MM_PER_PIXEL_XY = 0.156661
+    MM_PER_FRAME_Z = 1.318  #nuevos valores por nuevo modelo de raices
 
-    # affine = np.diag([MM_PER_PIXEL_XY, MM_PER_PIXEL_XY, MM_PER_FRAME_Z, 1])
 
-    # nii = nib.Nifti1Image(vol_nii.astype(np.uint8), affine)
-    # nib.save(nii, "bruno/volumenes/vol_1.nii.gz")
+    vol_nii_1 = np.transpose(vol_a, (2, 1, 0))
+    vol_nii_2 = np.transpose(vol_b_rotado, (2, 1, 0))  # (z, y, x) -> (x, y, z)
 
-    #print("Shape guardado (x, y, z):", vol_nii.shape)
+    affine = np.diag([MM_PER_PIXEL_XY, MM_PER_PIXEL_XY, MM_PER_FRAME_Z, 1])
 
-    for z in [45]:
+    nii_1 = nib.Nifti1Image(vol_nii_1.astype(np.uint8), affine)
+    nib.save(nii_1, "bruno/volumenes/vol_3.nii.gz")
+
+    nii_2 = nib.Nifti1Image(vol_nii_2.astype(np.uint8), affine)
+    nib.save(nii_2, "bruno/volumenes/vol_6.nii.gz")
+
+    print("Shape guardado")
+
+    plt.imshow(vol_a[100, :, :])
+    plt.show
+
+    for z in [50,100,120,150]:
         plt.figure()
         plt.imshow(overlay(vol_a[z], vol_b_rotado[z]))
         plt.title(f"z={z}")

@@ -1,44 +1,38 @@
-import pydicom
-import numpy as np
+import pydicom, numpy as np
 
-# Ruta al DICOM
-dcm = pydicom.dcmread("data/ultrasound/primera_medicion/004.dcm")
+def resumen(ruta, vel_z=25.0):
+    d = pydicom.dcmread(ruta)
+    print("\n###", ruta)
+    print("Frames:", getattr(d, "NumberOfFrames", None), "| shape:", d.pixel_array.shape)
 
-print("=== DICOM ===")
-print("Rows:", getattr(dcm, "Rows", None))
-print("Columns:", getattr(dcm, "Columns", None))
-print("Number of Frames:", getattr(dcm, "NumberOfFrames", None))
+    # Equipo y preset
+    for t in ["Manufacturer", "ManufacturerModelName", "SeriesDescription", "ProtocolName",
+              "TransducerType", "TransducerFrequency", "DepthOfScanField",
+              "MechanicalIndex", "ThermalIndex"]:
+        print(f"{t}: {getattr(d, t, None)}")
 
-print("\n=== SPACING ===")
-print("Pixel Spacing:", getattr(dcm, "PixelSpacing", None))
-print("Slice Thickness:", getattr(dcm, "SliceThickness", None))
-print("Spacing Between Slices:", getattr(dcm, "SpacingBetweenSlices", None))
+    # Spacing real y región ultrasónica
+    for i, r in enumerate(getattr(d, "SequenceOfUltrasoundRegions", [])):
+        print(f"Región {i}: DeltaX={getattr(r,'PhysicalDeltaX',None)}, "
+              f"DeltaY={getattr(r,'PhysicalDeltaY',None)}, "
+              f"unidades X/Y={getattr(r,'PhysicalUnitsXDirection',None)}/"
+              f"{getattr(r,'PhysicalUnitsYDirection',None)}, "
+              f"x=[{getattr(r,'RegionLocationMinX0',None)},{getattr(r,'RegionLocationMaxX1',None)}], "
+              f"y=[{getattr(r,'RegionLocationMinY0',None)},{getattr(r,'RegionLocationMaxY1',None)}], "
+              f"transductor={getattr(r,'TransducerFrequency',None)}")
 
-print("\n=== ORIENTACIÓN ===")
-print("Image Orientation Patient:",
-      getattr(dcm, "ImageOrientationPatient", None))
-print("Image Position Patient:",
-      getattr(dcm, "ImagePositionPatient", None))
+    # Z: tiempo entre frames y su variabilidad
+    ft = np.array(d.FrameTimeVector, float)
+    ft = ft[ft > 0]
+    print(f"FrameTime (ms): media={ft.mean():.3f}, std={ft.std():.3f}, "
+          f"min={ft.min():.3f}, max={ft.max():.3f}, n={ft.size}")
+    print(f"mm_por_frame_z: {vel_z * ft.mean() / 1000:.6f}")
 
-print("\n=== DIMENSIÓN DEL ARRAY ===")
-print("pixel_array.shape:", dcm.pixel_array.shape)
+    # Volcado completo (incluye tags privados, donde puede estar el preset o la ganancia)
+    print("--- Todos los tags ---")
+    for el in d:
+        if el.tag != (0x7FE0, 0x0010):
+            print(el.tag, el.name, "=", str(el.value)[:80])
 
-VELOCIDAD_Z_MM_S = 25.0
-
-def calcular_mm_por_frame_z(frame_time_vector_ms, velocidad_mm_s=VELOCIDAD_Z_MM_S):
-    """
-    Calcula el espaciado real en z (mm/frame) a partir del FrameTimeVector
-    del DICOM (tiempo entre frames en ms) y la velocidad conocida del carro.
-
-    frame_time_vector_ms: lista/array de tiempos entre frames (el primer
-    valor suele ser 0, correspondiente al frame inicial).
-    """
-    tiempos = np.array(frame_time_vector_ms, dtype=float)
-    tiempos_validos = tiempos[tiempos > 0]  # descarta el 0 inicial
-    frame_time_promedio_s = np.mean(tiempos_validos) / 1000.0
-    mm_por_frame = velocidad_mm_s * frame_time_promedio_s
-    return mm_por_frame
-
-mm_por_frame_z = calcular_mm_por_frame_z(dcm.FrameTimeVector)
-print("\n=== ===")
-print(mm_por_frame_z)
+for ruta in ["data/Escaneo 22-7/Ocular/001.dcm", "data/Escaneo 22-7/Suerficial/001.dcm", "data/Escaneo 22-7/Vascular/001.dcm"]:
+    resumen(ruta)

@@ -20,10 +20,10 @@ import pydicom
 import itk
 
 # ---------------- Configuración ----------------
-MM_PER_PIXEL_XY = 0.121847
-MM_PER_FRAME_Z = 1.049983510638298   # calculado con un volumen; ver nota abajo
-CROP_FILA_MIN, CROP_FILA_MAX = 113, 694
-CROP_COL_MIN, CROP_COL_MAX = 365, 652
+MM_PER_PIXEL_XY = 0.156661
+MM_PER_FRAME_Z = 1.318
+CROP_FILA_MIN, CROP_FILA_MAX = 115, 690
+CROP_COL_MIN, CROP_COL_MAX = 400, 620
 # ------------------------------------------------
 
 SPACING = (MM_PER_PIXEL_XY, MM_PER_PIXEL_XY, MM_PER_FRAME_Z)  # orden ITK: x, y, z
@@ -50,9 +50,9 @@ def mse(a, b):
 
 
 def main():
-    vol_a = cargar_dicom("data/ultrasound/primera_medicion/003.dcm")
-    vol_b = cargar_dicom("data/ultrasound/primera_medicion/006.dcm")
-    out = "bruno/volumenes/registration_3_6"
+    vol_a = cargar_dicom("data/Escaneo 22-7/Superficial/001.dcm")
+    vol_b = cargar_dicom("data/Escaneo 22-7/Superficial/004.dcm")
+    out = "bruno/volumenes/superficial/registro1_4"
     os.makedirs(out, exist_ok=True)
 
     print("shapes:", vol_a.shape, vol_b.shape)
