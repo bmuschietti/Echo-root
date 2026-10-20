@@ -50,9 +50,9 @@ def mse(a, b):
 
 
 def main():
-    vol_a = cargar_dicom("data/Escaneo 22-7/Superficial/001.dcm")
-    vol_b = cargar_dicom("data/Escaneo 22-7/Superficial/004.dcm")
-    out = "bruno/volumenes/superficial/registro1_4"
+    vol_a = cargar_dicom("data/Escaneo 22-7/Superficial/002.dcm")
+    vol_b = cargar_dicom("data/Escaneo 22-7/Superficial/005.dcm")
+    out = "bruno/volumenes/superficial/registro2_5"
     os.makedirs(out, exist_ok=True)
 
     print("shapes:", vol_a.shape, vol_b.shape)
@@ -61,8 +61,15 @@ def main():
     fixed_np = recortar(vol_a)
     moving_np = recortar(vol_b)[:, ::-1, ::-1]
 
+    if moving_np.shape[0] == fixed_np.shape[0] + 1:
+        moving_np = moving_np[1:]
+    elif fixed_np.shape[0] == moving_np.shape[0] + 1:
+        fixed_np = fixed_np[1:]
+
     fixed = a_itk(fixed_np)
     moving = a_itk(moving_np)
+
+
 
     mse_antes = mse(fixed_np, moving_np)
     print(f"MSE antes del registro: {mse_antes:.4f}")
@@ -96,8 +103,15 @@ def main():
     pb["ResultImagePixelType"] = ["float"]
     po.AddParameterMap(pb)
 
+    #MASCARA PARA EVITAR LOS BORDES EN EL REGISTRO
+    mask_np = np.zeros(fixed_np.shape, dtype=np.uint8)
+    mask_np[:, 50:480, :] = 1                      # Y = eje 1; fin excluido
+
+    mask = itk.image_from_array(mask_np)           # uint8 -> itk.UC
+    mask.CopyInformation(fixed)                    # misma grilla que fixed
+
     resultado, params = itk.elastix_registration_method(
-        fixed, moving, parameter_object=po, log_to_console=True,)
+        fixed, moving, parameter_object=po, fixed_mask=mask, log_to_console=True)
 
     res_np = itk.array_from_image(resultado)
     mse_despues = mse(fixed_np, res_np)
@@ -117,7 +131,10 @@ def main():
     itk.imwrite(resultado, os.path.join(out, "moving_registrado_bspline.nii.gz"))
     itk.imwrite(fixed, os.path.join(out, "fixed.nii.gz"))
     itk.imwrite(moving, os.path.join(out, "moving_original.nii.gz"))
-    params.WriteParameterFile(os.path.join(out, "transform_params_bspline.txt"))
+    params.WriteParameterFiles([
+    os.path.join(out, "transform_params_rigid.txt"),
+    os.path.join(out, "transform_params_bspline.txt"),
+])
 
 
 if __name__ == "__main__":

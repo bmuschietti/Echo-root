@@ -86,6 +86,6 @@ def rename_dicom_files_sequentially(dicom_folder):
 
 if __name__ == "__main__":
 
-    folder = "data/Escaneo 22-7/Vascular"
+    folder = "data/Escaneo 22-7/Superficial"
 
     rename_dicom_files_sequentially(folder)
