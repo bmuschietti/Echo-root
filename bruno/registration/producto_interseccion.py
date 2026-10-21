@@ -2,12 +2,13 @@ import itk
 import numpy as np
 
 # --- Parámetros ---
-RUTA_FIXED = "bruno/volumenes/registration_1_4/fixed.nii.gz"
-RUTA_MOVING = "bruno/volumenes/registration_1_4/moving_registrado.nii.gz"
-RUTA_MOVING_ORIG = "bruno/volumenes/registration_1_4/moving_original.nii.gz"  # grilla de origen del móvil
-RUTA_TRANSFORM = "bruno/volumenes/registration_1_4/transform_params_full.txt"  # último archivo de la cadena (ajustar)
-RUTA_SALIDA = "bruno/volumenes/registration_1_4/producto.nii.gz"
-RUTA_MASCARA = "bruno/volumenes/registration_1_4/mascara_validez.nii.gz"
+RUTA_FIXED = "bruno/volumenes/superficial/registro3_6/fixed.nii.gz"
+RUTA_MOVING = "bruno/volumenes/superficial/registro3_6/moving_registrado_bspline.nii.gz"
+RUTA_MOVING_ORIG = "bruno/volumenes/superficial/registro3_6/moving_original.nii.gz"  # grilla de origen del móvil
+RUTA_TRANSFORM = ["bruno/volumenes/superficial/registro3_6/transform_params_rigid.txt", 
+                  "bruno/volumenes/superficial/registro3_6/transform_params_bspline.txt"]  # último archivo de la cadena (ajustar)
+RUTA_SALIDA = "bruno/volumenes/superficial/registro3_6/producto.nii.gz"
+RUTA_MASCARA = "bruno/volumenes/superficial/registro3_6/mascara_validez.nii.gz"
 P_BAJO, P_ALTO = 1.0, 99.0  # percentiles de normalización (por definir)
 
 
@@ -32,8 +33,9 @@ unos = itk.image_from_array(np.ones(itk.array_from_image(mov_orig_itk).shape, np
 unos.CopyInformation(mov_orig_itk)
 
 params = itk.ParameterObject.New()
-params.ReadParameterFile(RUTA_TRANSFORM)
-params.SetParameter("FinalBSplineInterpolationOrder", "0")  # vecino más cercano
+for ruta in RUTA_TRANSFORM:
+    params.AddParameterFile(ruta)
+params.SetParameter("FinalBSplineInterpolationOrder", "0")
 params.SetParameter("DefaultPixelValue", "0")
 
 unos_reg = itk.transformix_filter(unos, params, log_to_console=False)

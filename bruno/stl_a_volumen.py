@@ -4,12 +4,12 @@ import itk
 from vtk.util import numpy_support
 
 # --- Parámetros ---
-RUTA_STL = "data\Escaneo 22-7\Raiz resina - 22-7.stl"
+RUTA_STL = "bruno/raiz_recortada.stl"
 SPACING = (0.156661, 0.156661, 1.318305)   # (x, y, z) mm, escaneo Superficial 001
 GRILLA_ESCANEO = (220, 575, 188)           # (x, y, z) vóxeles del recorte
 FLIP_Z = False                             # True si la tapa quedó abajo respecto del escaneo
-RUTA_COMPLETO = "bruno/volumenes/Superficial/stl_volumen_completo.nii.gz"
-RUTA_EN_GRILLA = "bruno/volumenes/Superficial/stl_volumen_grilla_escaneo.nii.gz"
+RUTA_COMPLETO = "bruno/volumenes/superficial/stl_volumen_completo.nii.gz"
+RUTA_EN_GRILLA = "bruno/volumenes/superficial/stl_volumen_grilla_escaneo.nii.gz"
 
 # --- Leer STL ---
 reader = vtk.vtkSTLReader()
@@ -77,3 +77,5 @@ vol2 = itk.image_from_array(out)
 vol2.SetSpacing(SPACING)
 itk.imwrite(vol2, RUTA_EN_GRILLA)
 print("Listo:", RUTA_COMPLETO, "y", RUTA_EN_GRILLA)
+
+

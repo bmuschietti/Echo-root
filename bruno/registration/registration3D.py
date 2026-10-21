@@ -50,9 +50,9 @@ def mse(a, b):
 
 
 def main():
-    vol_a = cargar_dicom("data/Escaneo 22-7/Superficial/002.dcm")
-    vol_b = cargar_dicom("data/Escaneo 22-7/Superficial/005.dcm")
-    out = "bruno/volumenes/superficial/registro2_5"
+    vol_a = cargar_dicom("data/Escaneo 22-7/Superficial/003.dcm")
+    vol_b = cargar_dicom("data/Escaneo 22-7/Superficial/006.dcm")
+    out = "bruno/volumenes/superficial/registro3_6"
     os.makedirs(out, exist_ok=True)
 
     print("shapes:", vol_a.shape, vol_b.shape)
@@ -131,10 +131,10 @@ def main():
     itk.imwrite(resultado, os.path.join(out, "moving_registrado_bspline.nii.gz"))
     itk.imwrite(fixed, os.path.join(out, "fixed.nii.gz"))
     itk.imwrite(moving, os.path.join(out, "moving_original.nii.gz"))
-    params.WriteParameterFiles([
-    os.path.join(out, "transform_params_rigid.txt"),
-    os.path.join(out, "transform_params_bspline.txt"),
-])
+    for i, nombre in enumerate(["rigid", "bspline"]):
+        po_i = itk.ParameterObject.New()
+        po_i.AddParameterMap(params.GetParameterMap(i))
+        po_i.WriteParameterFile(os.path.join(out, f"transform_params_{nombre}.txt"))
 
 
 if __name__ == "__main__":
@@ -146,3 +146,13 @@ if __name__ == "__main__":
 
 #ademas pasar el stl a volumen, primero se puede hacer en cualquier dimension olvidandonos del escaneo
 #luego con las medidad reales de la raices reescalar a las medidas del escaneo y usar el spacing de este 
+
+########2
+#a partir de los 3 volumenes: hacer registracion de a dos
+#tranformacion para primero alinear un poco los 3 volumenes, que pasa con las cosas que no comparten entre si? donde quedan?
+#recortar los bordes (bandas de la maceta)
+#co registrar (solo rigido?)
+
+#aplicarle transformacion al movil para representar el corrimiento de 30 grados. aca hay un problema: como hago para que en esa rotacion no pierda nada, siga teniendo el mismo tamaño/contenido
+#una vez ya rotado, hacer registration con una mascara sobre el volumen (espacio fisico) en el cual coinciden ambos escaneos (hay cosas que quedan por fuera)
+#quizas halla que construir un volumen mas grande para poder incorporar los dos
