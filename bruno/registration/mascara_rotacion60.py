@@ -4,10 +4,10 @@ import cv2
 import matplotlib.pyplot as plt
 
 # --- Parámetros (completar) ---
-RUTA_FIXED  = "bruno/volumenes/Superficial/registro1_4/producto.nii"
-RUTA_MOVING = "bruno/volumenes/Superficial/registro2_5/producto.nii"
-K = 70                      # índice de frame
-ANGULO_HORARIO = 60          # grados
+RUTA_FIXED  = "bruno/volumenes/superficial/registro2_5/producto.nii.gz"
+RUTA_MOVING = "bruno/volumenes/superficial/registro1_4/producto_penal.nii.gz"
+K = 60                      # índice de frame
+ANGULO_HORARIO = -60          # grados
 # -----------------------------
 
 fixed  = itk.array_from_image(itk.imread(RUTA_FIXED))   # (z, y, x)

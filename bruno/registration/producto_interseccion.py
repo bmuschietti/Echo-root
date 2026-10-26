@@ -2,13 +2,13 @@ import itk
 import numpy as np
 
 # --- Parámetros ---
-RUTA_FIXED = "bruno/volumenes/superficial/registro3_6/fixed.nii.gz"
-RUTA_MOVING = "bruno/volumenes/superficial/registro3_6/moving_registrado_bspline.nii.gz"
-RUTA_MOVING_ORIG = "bruno/volumenes/superficial/registro3_6/moving_original.nii.gz"  # grilla de origen del móvil
-RUTA_TRANSFORM = ["bruno/volumenes/superficial/registro3_6/transform_params_rigid.txt", 
-                  "bruno/volumenes/superficial/registro3_6/transform_params_bspline.txt"]  # último archivo de la cadena (ajustar)
-RUTA_SALIDA = "bruno/volumenes/superficial/registro3_6/producto.nii.gz"
-RUTA_MASCARA = "bruno/volumenes/superficial/registro3_6/mascara_validez.nii.gz"
+RUTA_FIXED = "bruno/volumenes/superficial/registro1_4/fixed.nii.gz"
+RUTA_MOVING = "bruno/volumenes/superficial/registro1_4/moving_registrado_bspline_penal.nii.gz"
+RUTA_MOVING_ORIG = "bruno/volumenes/superficial/registro1_4/moving_original.nii.gz"  # grilla de origen del móvil
+RUTA_TRANSFORM = ["bruno/volumenes/superficial/registro1_4/transform_params_rigid_penal.txt", 
+                  "bruno/volumenes/superficial/registro1_4/transform_params_bspline_penal.txt"]  # último archivo de la cadena (ajustar)
+RUTA_SALIDA = "bruno/volumenes/superficial/registro1_4/producto_penal.nii.gz"
+RUTA_MASCARA = "bruno/volumenes/superficial/registro1_4/mascara_validez.nii.gz"
 P_BAJO, P_ALTO = 1.0, 99.0  # percentiles de normalización (por definir)
 
 
