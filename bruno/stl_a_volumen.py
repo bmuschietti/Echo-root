@@ -4,9 +4,9 @@ import itk
 from vtk.util import numpy_support
 
 # --- Parámetros ---
-RUTA_STL = "bruno/raiz_recortada.stl"
+RUTA_STL = "bruno/volumenes/superficial/raiz_recortada.stl"
 SPACING = (0.156661, 0.156661, 1.318305)   # (x, y, z) mm, escaneo Superficial 001
-GRILLA_ESCANEO = (220, 575, 188)           # (x, y, z) vóxeles del recorte
+GRILLA_ESCANEO = (680, 681, 187)           # (x, y, z) vóxeles del recorte
 FLIP_Z = False                             # True si la tapa quedó abajo respecto del escaneo
 RUTA_COMPLETO = "bruno/volumenes/superficial/stl_volumen_completo.nii.gz"
 RUTA_EN_GRILLA = "bruno/volumenes/superficial/stl_volumen_grilla_escaneo.nii.gz"
@@ -49,33 +49,34 @@ if FLIP_Z:
 print("Volumen STL (z, y, x):", arr.shape, "| vóxeles = 1:", int(arr.sum()))
 
 
-def centro(shape_zyx, spacing_xyz):
-    z, y, x = shape_zyx
-    return np.array([(x - 1) * spacing_xyz[0], (y - 1) * spacing_xyz[1],
-                     (z - 1) * spacing_xyz[2]]) / 2.0
+RUTA_SUMA = "bruno/volumenes/superficial/final/suma_final.nii.gz"
 
+ref = itk.imread(RUTA_SUMA, itk.F)
+shape_ref = itk.array_from_image(ref).shape        # (z, y, x)
 
-# --- 1) Volumen completo, con el mismo centro que la grilla del escaneo ---
-shape_esc = GRILLA_ESCANEO[::-1]                       # (z, y, x)
-origen = centro(shape_esc, SPACING) - centro(arr.shape, SPACING)
-vol = itk.image_from_array(arr)
-vol.SetSpacing(SPACING)
-vol.SetOrigin(tuple(float(o) for o in origen))
-itk.imwrite(vol, RUTA_COMPLETO)
+out = np.zeros(shape_ref, dtype=np.uint8)
 
-# --- 2) Mismo volumen en la grilla exacta del escaneo (centrado; lo que sobra se recorta) ---
-out = np.zeros(shape_esc, dtype=np.uint8)
-src, dst = [], []
-for n_src, n_dst in zip(arr.shape, shape_esc):
-    n = min(n_src, n_dst)
-    s0 = (n_src - n) // 2
-    d0 = (n_dst - n) // 2
-    src.append(slice(s0, s0 + n))
-    dst.append(slice(d0, d0 + n))
-out[tuple(dst)] = arr[tuple(src)]
-vol2 = itk.image_from_array(out)
-vol2.SetSpacing(SPACING)
-itk.imwrite(vol2, RUTA_EN_GRILLA)
-print("Listo:", RUTA_COMPLETO, "y", RUTA_EN_GRILLA)
+# Z: alineado al último frame (techo). XY: centrado.
+nz_s, ny_s, nx_s = shape_ref
+nz_a, ny_a, nx_a = arr.shape
+
+nz = min(nz_a, nz_s)
+ny = min(ny_a, ny_s)
+nx = min(nx_a, nx_s)
+
+# Z: se conservan los últimos frames del STL y se ponen al final de la suma
+sz_src = slice(nz_a - nz, nz_a)
+sz_dst = slice(nz_s - nz, nz_s)
+# XY: centrado
+sy_src = slice((ny_a - ny) // 2, (ny_a - ny) // 2 + ny)
+sy_dst = slice((ny_s - ny) // 2, (ny_s - ny) // 2 + ny)
+sx_src = slice((nx_a - nx) // 2, (nx_a - nx) // 2 + nx)
+sx_dst = slice((nx_s - nx) // 2, (nx_s - nx) // 2 + nx)
+
+out[sz_dst, sy_dst, sx_dst] = arr[sz_src, sy_src, sx_src]
+
+vol = itk.image_from_array(out)
+vol.CopyInformation(ref)                            # origen, spacing y dirección de la suma
+itk.imwrite(vol, RUTA_EN_GRILLA)
 
 
