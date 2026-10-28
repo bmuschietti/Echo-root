@@ -89,6 +89,13 @@ with open(ruta_init, "w") as f:
 (ResultImagePixelType "float")
 ''')
 
+# --- guardo el moving solo con la rotacion inicial 
+po_init = itk.ParameterObject.New()
+po_init.AddParameterFile(ruta_init)
+solo_inicial = itk.transformix_filter(moving, po_init)
+solo_inicial.CopyInformation(fixed)
+itk.imwrite(solo_inicial, os.path.join(OUT, "1_moving_rotacion_inicial.nii.gz"))
+
 # --- 5) Registro rígido sobre la zona compartida ---
 pm = itk.ParameterObject.New()
 rigid = pm.GetDefaultParameterMap("rigid", 3)
@@ -119,3 +126,12 @@ po_out.AddParameterMap(params.GetParameterMap(0))
 po_out.WriteParameterFile(os.path.join(OUT, "transform_params_rigid_1_2.txt"))
 print("TransformParameters (rx, ry, rz rad; tx, ty, tz mm):",
       params.GetParameterMap(0)["TransformParameters"])
+
+
+
+##PROBLEMA: averiguar porque el registro del 1 hacia el 2 es tan malo 
+#guardar el volumen con la rotacion y previo al registro final, quizas esta rotacion ya lo esta cagando
+#probar registro entre dos -> unificarlo en un volumen -> regitrar el tercero, en el registro simultaneo se puede estar jodiendo
+#sino probar alternativas de registro:
+##puede ser registro por segmentacion (umbralizando)
+##otro metodos de registro que no sean elastix
