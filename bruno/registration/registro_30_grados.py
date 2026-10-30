@@ -4,9 +4,9 @@ import cv2
 import os
 
 # --- Parámetros (completar) ---
-RUTA_FIXED  = "bruno/volumenes/superficial/registro2_5/producto.nii"
-RUTA_MOVING = "bruno/volumenes/superficial/registro1_4/producto_penal.nii"
-OUT = "bruno/volumenes/superficial/final"
+RUTA_FIXED  = "bruno/volumenes/superficial/registro2_5/producto_seg.nii"
+RUTA_MOVING = "bruno/volumenes/superficial/registro1_4/producto_penal_seg.nii"
+OUT = "bruno/volumenes/superficial/final/seg"
 ANGULO_HORARIO = -60      # giro del moving en pantalla 
 # -----------------------------
 os.makedirs(OUT, exist_ok=True)
@@ -94,7 +94,7 @@ po_init = itk.ParameterObject.New()
 po_init.AddParameterFile(ruta_init)
 solo_inicial = itk.transformix_filter(moving, po_init)
 solo_inicial.CopyInformation(fixed)
-itk.imwrite(solo_inicial, os.path.join(OUT, "1_moving_rotacion_inicial.nii.gz"))
+itk.imwrite(solo_inicial, os.path.join(OUT, "1_moving_rotacion_inicial_seg.nii.gz"))
 
 # --- 5) Registro rígido sobre la zona compartida ---
 pm = itk.ParameterObject.New()
@@ -118,12 +118,12 @@ resultado, params = itk.elastix_registration_method(
     initial_transform_parameter_file_name=ruta_init,
     log_to_console=True)
 
-itk.imwrite(resultado, os.path.join(OUT, "1_moving_registrado.nii.gz"))
-itk.imwrite(fixed, os.path.join(OUT, "2_fixed.nii.gz"))
+itk.imwrite(resultado, os.path.join(OUT, "1_moving_registrado_seg.nii.gz"))
+itk.imwrite(fixed, os.path.join(OUT, "2_fixed_seg.nii.gz"))
 
 po_out = itk.ParameterObject.New()
 po_out.AddParameterMap(params.GetParameterMap(0))
-po_out.WriteParameterFile(os.path.join(OUT, "transform_params_rigid_1_2.txt"))
+po_out.WriteParameterFile(os.path.join(OUT, "transform_params_rigid_1_2_seg.txt"))
 print("TransformParameters (rx, ry, rz rad; tx, ty, tz mm):",
       params.GetParameterMap(0)["TransformParameters"])
 
