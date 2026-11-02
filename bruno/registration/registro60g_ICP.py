@@ -9,7 +9,6 @@ from scipy.ndimage import affine_transform
 # --- Parámetros (completar) ---
 RUTA_FIXED_SEG  = "bruno/volumenes/superficial/registro2_5/producto_seg.nii"
 RUTA_MOVING_SEG = "bruno/volumenes/superficial/registro1_4/producto_penal_seg.nii"
-RUTA_SALIDA     = "bruno/volumenes/superficial/final/seg"
 ANGULO_HORARIO  = -60      # el mismo valor que usaste en el registro del 1-4
 UMBRAL_SEG      = 0.5      # el _seg está suavizado: vóxeles > umbral cuentan como raíz
 MAX_DIST_MM     = 30       # distancia máxima de correspondencia del ICP
@@ -84,7 +83,7 @@ print(f"fitness (fracción de puntos con pareja): {res.fitness:.3f} | rmse: {res
 print(f"Rotación ICP (rx, ry, rz) en grados: {rx:.2f}, {ry:.2f}, {rz:.2f}")
 print(f"Traslación ICP (tx, ty, tz) en mm: {T[0, 3]:.2f}, {T[1, 3]:.2f}, {T[2, 3]:.2f}")
 
-np.savez(RUTA_SALIDA, T_icp_mm=T, M_rotacion_inicial_px=M, angulo_horario=ANGULO_HORARIO)
+
 
 #CREA Y GUARDA EL VOLUMEN REGISTRADO 
 
@@ -115,3 +114,45 @@ out = itk.image_from_array(reg)
 out.CopyInformation(ref)
 itk.imwrite(out, RUTA_SALIDA_VOL)
 print("Volumen registrado guardado en", RUTA_SALIDA_VOL)
+
+# --- Guardar la transformación total como archivo de elastix ---
+RUTA_TRANSFORM = "bruno/volumenes/superficial/final/seg/transform_icp_1.txt"   
+
+# fixed(mm) -> moving(mm): inversa de (T · G · Mi · G^-1)
+F = np.linalg.inv(G @ Mi @ np.linalg.inv(G)) @ np.linalg.inv(T)
+params = " ".join(repr(float(v)) for v in list(F[:3, :3].flatten()) + list(F[:3, 3]))
+dir_str = " ".join(repr(float(v)) for v in D.flatten())
+
+with open(RUTA_TRANSFORM, "w") as f:
+    f.write(f'''(Transform "AffineTransform")
+(NumberOfParameters 12)
+(TransformParameters {params})
+(InitialTransformParameterFileName "NoInitialTransform")
+(HowToCombineTransforms "Compose")
+(FixedImageDimension 3)
+(MovingImageDimension 3)
+(FixedInternalImagePixelType "float")
+(MovingInternalImagePixelType "float")
+(Size {w} {h} {nz})
+(Index 0 0 0)
+(Spacing {sp[0]} {sp[1]} {sp[2]})
+(Origin {org[0]} {org[1]} {org[2]})
+(Direction {dir_str})
+(UseDirectionCosines "true")
+(CenterOfRotationPoint 0 0 0)
+(ResampleInterpolator "FinalBSplineInterpolator")
+(FinalBSplineInterpolationOrder 1)
+(Resampler "DefaultResampler")
+(DefaultPixelValue 0)
+(ResultImageFormat "nii")
+(ResultImagePixelType "float")
+''')
+print("Transformación guardada en", RUTA_TRANSFORM)
+
+# --- Verificación: transformix con este archivo debe reproducir 'reg' ---
+mov_itk = itk.image_from_array(moving_np.astype(np.float32))
+mov_itk.CopyInformation(ref)
+po = itk.ParameterObject.New()
+po.AddParameterFile(RUTA_TRANSFORM)
+chk = itk.array_from_image(itk.transformix_filter(mov_itk, po))
+print("Diferencia máxima contra el volumen registrado:", float(np.abs(chk - reg).max()))
