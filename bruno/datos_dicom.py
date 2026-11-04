@@ -34,5 +34,5 @@ def resumen(ruta, vel_z=25.0):
         if el.tag != (0x7FE0, 0x0010):
             print(el.tag, el.name, "=", str(el.value)[:80])
 
-for ruta in ["data/Escaneo 22-7/Ocular/001.dcm", "data/Escaneo 22-7/Suerficial/001.dcm", "data/Escaneo 22-7/Vascular/001.dcm"]:
+for ruta in ["data/Escaneo 22-7/Vascular/006.dcm"]:
     resumen(ruta)

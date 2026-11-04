@@ -21,7 +21,7 @@ import itk
 
 # ---------------- Configuración ----------------
 MM_PER_PIXEL_XY = 0.156661
-MM_PER_FRAME_Z = 1.318
+MM_PER_FRAME_Z = 1.307338
 CROP_FILA_MIN, CROP_FILA_MAX = 115, 690
 CROP_COL_MIN, CROP_COL_MAX = 400, 620
 # ------------------------------------------------
@@ -50,9 +50,9 @@ def mse(a, b):
 
 
 def main():
-    vol_a = cargar_dicom("data/Escaneo 22-7/Superficial/001.dcm")
-    vol_b = cargar_dicom("data/Escaneo 22-7/Superficial/004.dcm")
-    out = "bruno/volumenes/superficial/registro1_4"
+    vol_a = cargar_dicom("data/Escaneo 22-7/Vascular/003.dcm")
+    vol_b = cargar_dicom("data/Escaneo 22-7/Vascular/006.dcm")
+    out = "bruno/volumenes/vascular/registro3_6"
     os.makedirs(out, exist_ok=True)
 
     print("shapes:", vol_a.shape, vol_b.shape)
@@ -93,7 +93,7 @@ def main():
     pb["Registration"] = ["MultiMetricMultiResolutionRegistration"]
     pb["Metric"] = ["AdvancedMeanSquares", "TransformRigidityPenalty"]
     pb["Metric0Weight"] = ["1.0"]
-    pb["Metric1Weight"] = ["1000.0"]   # a ajustar por órdenes de magnitud
+    pb["Metric1Weight"] = ["10.0"]   # a ajustar por órdenes de magnitud
     # Pesos de las tres condiciones
     pb["LinearityConditionWeight"] = ["100.0"]
     pb["OrthonormalityConditionWeight"] = ["1.0"]
@@ -133,13 +133,13 @@ def main():
     print(f"Centro de rotación (mm): {centro}")
 
     # Guardados
-    itk.imwrite(resultado, os.path.join(out, "moving_registrado_bspline_penal.nii.gz"))
+    itk.imwrite(resultado, os.path.join(out, "moving_registrado_bspline.nii.gz"))
     itk.imwrite(fixed, os.path.join(out, "fixed.nii.gz"))
     itk.imwrite(moving, os.path.join(out, "moving_original.nii.gz"))
     for i, nombre in enumerate(["rigid", "bspline"]):
         po_i = itk.ParameterObject.New()
         po_i.AddParameterMap(params.GetParameterMap(i))
-        po_i.WriteParameterFile(os.path.join(out, f"transform_params_{nombre}_penal.txt"))
+        po_i.WriteParameterFile(os.path.join(out, f"transform_params_{nombre}.txt"))
 
 
 if __name__ == "__main__":

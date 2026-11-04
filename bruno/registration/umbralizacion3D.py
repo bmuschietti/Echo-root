@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # --- Parámetros (completar) ---
-RUTA = "bruno/volumenes/superficial/registro3_6/producto.nii"
+RUTA = "bruno/volumenes/vascular/registro3_6/producto_penal.nii"
 K = 80                                   # frame a visualizar
 PERCENTILES = [90, 95, 98, 99, 99.5]      # umbrales candidatos (percentil de vóxeles > 0)
 FILAS_CERO = [(0,60),(440,575)]                           # rangos de filas de las paredes, ej. [(0, 40), (535, 575)]

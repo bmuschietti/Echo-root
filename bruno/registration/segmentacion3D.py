@@ -3,11 +3,11 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 
 # --- Parámetros (completar) ---
-RUTA = "bruno/volumenes/superficial/registro1_4/producto_penal.nii"
-RUTA_LIMPIO = "bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii.gz"   # producto con paredes en 0 (intensidades)
-RUTA_SEG    = "bruno/volumenes/superficial/registro1_4/producto_penal_seg.nii.gz"      # segmentación suavizada (para registrar)
+RUTA = "bruno/volumenes/vascular/registro3_6/producto_penal.nii"
+RUTA_LIMPIO = "bruno/volumenes/vascular/registro3_6/producto_limpio.nii.gz"   # producto con paredes en 0 (intensidades)
+RUTA_SEG    = "bruno/volumenes/vascular/registro3_6/producto_seg.nii.gz"      # segmentación suavizada (para registrar)
 PERCENTIL = 95
-FILAS_CERO = [(0, 60), (440, 575)]
+FILAS_CERO = [(0, 60), (460, 575)]
 SIGMA_PX = 1.5        # suavizado gaussiano en XY (px); 0 = sin suavizar
 # -----------------------------
 

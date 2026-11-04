@@ -4,11 +4,11 @@ import cv2
 import os
 
 # --- Rutas (completar) ---
-RUTA_FIXED     = "bruno/volumenes/superficial/registro3_6/producto_limpio.nii.gz"
-RUTA_MOVING    = "bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii.gz"
-RUTA_ICP       = "bruno/volumenes/superficial/final/3fixed/transform_icp_1.txt"      # transformación del ICP (AffineTransform)
-OUT            = "bruno/volumenes/superficial/final/3fixed"
-ANGULO_HORARIO = -120                                # solo para la máscara de coincidencia
+RUTA_FIXED     = "bruno/volumenes/vascular/registro2_5/producto_limpio.nii.gz"
+RUTA_MOVING    = "bruno/volumenes/vascular/registro3_6/producto_limpio.nii.gz"
+RUTA_ICP       = "bruno/volumenes/vascular/2fixed/transform_icp_3.txt"      # transformación del ICP (AffineTransform)
+OUT            = "bruno/volumenes/vascular/2fixed"
+ANGULO_HORARIO = 60                                # solo para la máscara de coincidencia
 USAR_MASCARA   = True
 
 # =====================================================================
@@ -83,10 +83,10 @@ if mask is not None:
 resultado, params = itk.elastix_registration_method(fixed, moving, **kwargs)
 
 # --- Guardar volumen y transformación ---
-itk.imwrite(resultado, os.path.join(OUT, "1moving_registrado_elastico.nii.gz"))
-itk.imwrite(fixed, os.path.join(OUT, "3fixed.nii.gz"))
+itk.imwrite(resultado, os.path.join(OUT, "3moving_registrado_elastico.nii.gz"))
+itk.imwrite(fixed, os.path.join(OUT, "2fixed.nii.gz"))
 
 po_out = itk.ParameterObject.New()
 po_out.AddParameterMap(params.GetParameterMap(0))
-po_out.WriteParameterFile(os.path.join(OUT, "1transform_params_bspline.txt"))
+po_out.WriteParameterFile(os.path.join(OUT, "3transform_params_bspline.txt"))
 print("Guardado en", OUT)

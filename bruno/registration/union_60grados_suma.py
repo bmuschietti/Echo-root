@@ -3,12 +3,12 @@ import numpy as np
 import os
 
 # --- Parámetros (completar) ---
-RUTA_FIXED  = "bruno/volumenes/superficial/registro2_5/producto_limpio.nii"
-RUTA_MOVING = "bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii"
-RUTA_MOVING2 = "bruno/volumenes/superficial/registro3_6/producto_limpio.nii"
-RUTA_PARAMS = "bruno/volumenes/superficial/final/seg/1transform_params_bspline.txt" 
-RUTA_PARAMS2 = "bruno/volumenes/superficial/final/seg/3transform_params_bspline.txt"  # el que apunta a transform_inicial.txt
-OUT = "bruno/volumenes/superficial/final/seg"
+RUTA_FIXED  = "bruno/volumenes/vascular/registro2_5/producto_limpio.nii"
+RUTA_MOVING = "bruno/volumenes/vascular/registro1_4/producto_limpio.nii"
+RUTA_MOVING2 = "bruno/volumenes/vascular/registro3_6/producto_limpio.nii"
+RUTA_PARAMS = "bruno/volumenes/vascular/2fixed/1transform_params_bspline.txt" 
+RUTA_PARAMS2 = "bruno/volumenes/vascular/2fixed/3transform_params_bspline.txt"  # el que apunta a transform_inicial.txt
+OUT = "bruno/volumenes/vascular/2fixed"
 MARGEN_MM = 5      # margen extra alrededor del círculo que contiene cualquier giro
 # -----------------------------
 os.makedirs(OUT, exist_ok=True)

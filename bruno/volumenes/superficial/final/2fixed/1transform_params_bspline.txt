@@ -12,7 +12,7 @@
 (GridSpacing 55.54299272954318 18.133889684982357 40.33291629228161)
 (HowToCombineTransforms "Compose")
 (Index 0 0 0)
-(InitialTransformParameterFileName "bruno/volumenes/superficial/final/seg/transform_icp_1.txt")
+(InitialTransformParameterFileName "bruno/volumenes/superficial/final/2fixed/transform_icp_1.txt")
 (MovingImageDimension 3)
 (MovingInternalImagePixelType "float")
 (NumberOfParameters 1200)
