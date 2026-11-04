@@ -8,7 +8,7 @@ RUTA_MOVING = "bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii
 RUTA_MOVING2 = "bruno/volumenes/superficial/registro3_6/producto_limpio.nii"
 RUTA_PARAMS = "bruno/volumenes/superficial/final/seg/1transform_params_bspline.txt" 
 RUTA_PARAMS2 = "bruno/volumenes/superficial/final/seg/3transform_params_bspline.txt"  # el que apunta a transform_inicial.txt
-OUT = "bruno/volumenes/superficial/final"
+OUT = "bruno/volumenes/superficial/final/seg"
 MARGEN_MM = 5      # margen extra alrededor del círculo que contiene cualquier giro
 # -----------------------------
 os.makedirs(OUT, exist_ok=True)
@@ -87,4 +87,4 @@ def guardar(arr, nombre):
 
 #guardar(fixed_big,  "fixed_grande.nii.gz")
 #guardar(moving_big, "moving_grande.nii.gz")
-guardar(suma,       "suma_final_icp_bspline.nii.gz")
+guardar(suma,       "suma_2fixed.nii.gz")

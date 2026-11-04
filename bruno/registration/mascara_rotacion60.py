@@ -4,9 +4,9 @@ import cv2
 import matplotlib.pyplot as plt
 
 # --- Parámetros (completar) ---
-RUTA_FIXED  = "bruno/volumenes/superficial/registro2_5/producto.nii.gz"
-RUTA_MOVING = "bruno/volumenes/superficial/registro1_4/producto_penal.nii.gz"
-K = 60                      # índice de frame
+RUTA_FIXED  = "bruno/volumenes/superficial/registro3_6/producto.nii.gz"
+RUTA_MOVING = "bruno/volumenes/superficial/registro2_5/producto.nii.gz"
+K = 80                      # índice de frame
 ANGULO_HORARIO = -60          # grados
 # -----------------------------
 
