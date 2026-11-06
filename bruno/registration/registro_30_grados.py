@@ -135,3 +135,16 @@ print("TransformParameters (rx, ry, rz rad; tx, ty, tz mm):",
 #sino probar alternativas de registro:
 ##puede ser registro por segmentacion (umbralizando)
 ##otro metodos de registro que no sean elastix
+
+
+#PIPELINE
+##punto de partida los 3 volumenes diferidos por 60 grados (vienen de las fusion de los volumene opuestos)
+##segmentamos los 3 y elegimos el fixed para el registro de los otros do
+##registro:
+###ICP sobre la segmentacion (voxeles) con la rotacion de 60 grados - guardar la transformacion
+###tirar un registro elastico (suave) partiendo de la transformacion del icp y hacerlo SOBRE LOS VOLUMENES (no la segmentacion)
+###unir los 3 en un volumen mayor
+
+#pasos futuros:
+##probar variaciones en el fixed - promediar loa resultados de todas las variaciones
+##mas escaneos
