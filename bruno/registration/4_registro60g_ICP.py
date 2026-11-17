@@ -7,8 +7,8 @@ from scipy.spatial.transform import Rotation
 from scipy.ndimage import affine_transform
 
 # --- Parámetros (completar) ---
-RUTA_FIXED_SEG  = "bruno/volumenes/vascular/registro2_5/producto_seg.nii"
-RUTA_MOVING_SEG = "bruno/volumenes/vascular/registro3_6/producto_seg.nii"
+RUTA_FIXED_SEG  = "bruno/volumenes/superficial/registro1_4/producto_penal_seg.nii"
+RUTA_MOVING_SEG = "bruno/volumenes/superficial/registro2_5/producto_seg.nii"
 ANGULO_HORARIO  = 60      # el mismo valor que usaste en el registro del 1-4
 UMBRAL_SEG      = 0.5      # el _seg está suavizado: vóxeles > umbral cuentan como raíz
 MAX_DIST_MM     = 30       # distancia máxima de correspondencia del ICP
@@ -87,7 +87,7 @@ print(f"Traslación ICP (tx, ty, tz) en mm: {T[0, 3]:.2f}, {T[1, 3]:.2f}, {T[2, 
 
 #CREA Y GUARDA EL VOLUMEN REGISTRADO 
 
-RUTA_SALIDA_VOL = "bruno/volumenes/vascular/2fixed/3seg_registrado_icp.nii.gz"
+RUTA_SALIDA_VOL = "bruno/volumenes/superficial/final/1fixed/2seg_registrado_icp.nii.gz"
 
 # Índice (x, y, z) -> mm
 G = np.eye(4)
@@ -116,7 +116,7 @@ itk.imwrite(out, RUTA_SALIDA_VOL)
 print("Volumen registrado guardado en", RUTA_SALIDA_VOL)
 
 # --- Guardar la transformación total como archivo de elastix ---
-RUTA_TRANSFORM = "bruno/volumenes/vascular/2fixed/transform_icp_3.txt"   
+RUTA_TRANSFORM = "bruno/volumenes/superficial/final/1fixed/transform_icp_2.txt"   
 
 # fixed(mm) -> moving(mm): inversa de (T · G · Mi · G^-1)
 F = np.linalg.inv(G @ Mi @ np.linalg.inv(G)) @ np.linalg.inv(T)
