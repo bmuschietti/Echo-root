@@ -20,9 +20,9 @@ import pydicom
 import itk
 
 # ---------------- Configuración ----------------
-MM_PER_PIXEL_XY = 0.156661
-MM_PER_FRAME_Z = 1.307338
-CROP_FILA_MIN, CROP_FILA_MAX = 115, 690
+MM_PER_PIXEL_XY = 0.156661 #dato del dicom
+MM_PER_FRAME_Z = 1.311345 #vel_z (mm/s) * tiempo medio entre frames (s)
+CROP_FILA_MIN, CROP_FILA_MAX = 115, 690 #visto a ojo
 CROP_COL_MIN, CROP_COL_MAX = 400, 620
 # ------------------------------------------------
 
@@ -50,9 +50,9 @@ def mse(a, b):
 
 
 def main():
-    vol_a = cargar_dicom("data/Escaneo 22-7/Vascular/003.dcm")
-    vol_b = cargar_dicom("data/Escaneo 22-7/Vascular/006.dcm")
-    out = "bruno/volumenes/vascular/registro3_6"
+    vol_a = cargar_dicom("data/Escaneo 22-7/Superficial/006.dcm")
+    vol_b = cargar_dicom("data/Escaneo 22-7/Superficial/003.dcm")
+    out = "bruno/volumenes/superficial/registro6_3"
     os.makedirs(out, exist_ok=True)
 
     print("shapes:", vol_a.shape, vol_b.shape)
@@ -93,7 +93,7 @@ def main():
     pb["Registration"] = ["MultiMetricMultiResolutionRegistration"]
     pb["Metric"] = ["AdvancedMeanSquares", "TransformRigidityPenalty"]
     pb["Metric0Weight"] = ["1.0"]
-    pb["Metric1Weight"] = ["10.0"]   # a ajustar por órdenes de magnitud
+    pb["Metric1Weight"] = ["1.0"]   # a ajustar por órdenes de magnitud
     # Pesos de las tres condiciones
     pb["LinearityConditionWeight"] = ["100.0"]
     pb["OrthonormalityConditionWeight"] = ["1.0"]

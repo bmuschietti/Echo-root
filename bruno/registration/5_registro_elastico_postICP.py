@@ -4,11 +4,11 @@ import cv2
 import os
 
 # --- Rutas (completar) ---
-RUTA_FIXED     = "bruno/volumenes/vascular/registro2_5/producto_limpio.nii.gz"
-RUTA_MOVING    = "bruno/volumenes/vascular/registro3_6/producto_limpio.nii.gz"
-RUTA_ICP       = "bruno/volumenes/vascular/2fixed/transform_icp_3.txt"      # transformación del ICP (AffineTransform)
-OUT            = "bruno/volumenes/vascular/2fixed"
-ANGULO_HORARIO = 60                                # solo para la máscara de coincidencia
+RUTA_FIXED     = "bruno/volumenes/superficial/registro5_2/producto_limpio.nii.gz"
+RUTA_MOVING    = "bruno/volumenes/superficial/registro6_3/producto_limpio.nii.gz"
+RUTA_ICP       = "bruno/volumenes/superficial/final/5fixed/transform_icp_6.txt"      # transformación del ICP (AffineTransform)
+OUT            = "bruno/volumenes/superficial/final/5fixed"
+ANGULO_HORARIO = -60                                # solo para la máscara de coincidencia
 USAR_MASCARA   = True
 
 # =====================================================================
@@ -60,7 +60,7 @@ bs["MaximumNumberOfIterations"] = [ITERACIONES]
 bs["DefaultPixelValue"] = ["0"]
 bs["ErodeMask"] = ["false"]
 
-bs["ImageSampler"] = ["Full"]
+bs["ImageSampler"] = ["Full"]  #tarda mucho mas, probar otro metodo con random pick
 
 bs["Registration"] = ["MultiMetricMultiResolutionRegistration"]
 bs["Metric0Weight"] = ["1.0"]
@@ -83,10 +83,10 @@ if mask is not None:
 resultado, params = itk.elastix_registration_method(fixed, moving, **kwargs)
 
 # --- Guardar volumen y transformación ---
-itk.imwrite(resultado, os.path.join(OUT, "3moving_registrado_elastico.nii.gz"))
-itk.imwrite(fixed, os.path.join(OUT, "2fixed.nii.gz"))
+itk.imwrite(resultado, os.path.join(OUT, "4moving_registrado_elastico.nii.gz"))
+itk.imwrite(fixed, os.path.join(OUT, "5fixed.nii.gz"))
 
 po_out = itk.ParameterObject.New()
 po_out.AddParameterMap(params.GetParameterMap(0))
-po_out.WriteParameterFile(os.path.join(OUT, "3transform_params_bspline.txt"))
+po_out.WriteParameterFile(os.path.join(OUT, "4transform_params_bspline.txt"))
 print("Guardado en", OUT)

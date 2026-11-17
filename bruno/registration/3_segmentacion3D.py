@@ -3,9 +3,9 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 
 # --- Parámetros (completar) ---
-RUTA = "bruno/volumenes/vascular/registro3_6/producto_penal.nii"
-RUTA_LIMPIO = "bruno/volumenes/vascular/registro3_6/producto_limpio.nii.gz"   # producto con paredes en 0 (intensidades)
-RUTA_SEG    = "bruno/volumenes/vascular/registro3_6/producto_seg.nii.gz"      # segmentación suavizada (para registrar)
+RUTA = "bruno/volumenes/superficial/registro6_3/producto.nii"
+RUTA_LIMPIO = "bruno/volumenes/superficial/registro6_3/producto_limpio.nii.gz"   # producto con paredes en 0 (intensidades)
+RUTA_SEG    = "bruno/volumenes/superficial/registro6_3/producto_seg.nii.gz"      # segmentación suavizada (para registrar)
 PERCENTIL = 95
 FILAS_CERO = [(0, 60), (460, 575)]
 SIGMA_PX = 1.5        # suavizado gaussiano en XY (px); 0 = sin suavizar
@@ -17,6 +17,9 @@ vol = itk.array_from_image(img).astype(np.float32)   # (z, y, x)
 # 1) Paredes en 0 (se mantiene tamaño y centro de la imagen)
 for a, b in FILAS_CERO:
     vol[:, a:b, :] = 0
+
+#corrige error detectado a mano, no hay raices en estos frames entonces el registro captura reverb
+vol[0:24] = 0
 
 # 2) Umbral: percentil de los vóxeles > 0, ya sin paredes
 umbral = np.percentile(vol[vol > 0], PERCENTIL)
