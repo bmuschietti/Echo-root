@@ -5,15 +5,15 @@ import os
 import open3d as o3d
 
 # --- Entradas --- 
-FIXED   = ("bruno/volumenes/superficial/registro1_4/producto_penal_seg.nii", "bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii")
+FIXED   = ("bruno/volumenes/superficial/registro6_3/producto_seg.nii", "bruno/volumenes/superficial/registro6_3/producto_limpio.nii")
 # (ruta al producto segmentado ; ruta al producto limpio; angulo de rotación en sentido horario del fixed hasta el moving, nro de producto)
-MOVINGS = [("bruno/volumenes/superficial/registro5_2/producto_seg.nii", "bruno/volumenes/superficial/registro5_2/producto_limpio.nii", -120, 5),
-           ("bruno/volumenes/superficial/registro2_5/producto_seg.nii", "bruno/volumenes/superficial/registro2_5/producto_limpio.nii", 60, 2), 
-           ("bruno/volumenes/superficial/registro3_6/producto_seg.nii", "bruno/volumenes/superficial/registro3_6/producto_limpio.nii", 120,3),   
-           ("bruno/volumenes/superficial/registro4_1/producto_seg.nii", "bruno/volumenes/superficial/registro4_1/producto_limpio.nii", 180, 4),
-           ("bruno/volumenes/superficial/registro6_3/producto_seg.nii", "bruno/volumenes/superficial/registro6_3/producto_limpio.nii", -60, 6),
+MOVINGS = [("bruno/volumenes/superficial/registro5_2/producto_seg.nii", "bruno/volumenes/superficial/registro5_2/producto_limpio.nii", -60, 5),
+           ("bruno/volumenes/superficial/registro2_5/producto_seg.nii", "bruno/volumenes/superficial/registro2_5/producto_limpio.nii", 120, 2), 
+           ("bruno/volumenes/superficial/registro1_4/producto_penal_seg.nii", "bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii", 60,1),   
+           ("bruno/volumenes/superficial/registro4_1/producto_seg.nii", "bruno/volumenes/superficial/registro4_1/producto_limpio.nii", -120, 4),
+           ("bruno/volumenes/superficial/registro3_6/producto_seg.nii", "bruno/volumenes/superficial/registro3_6/producto_limpio.nii", 180, 3),
            ]
-OUT = "bruno/volumenes/superficial/1fixed"
+OUT = "bruno/volumenes/superficial/6fixed"
 
 # --- ICP ---
 UMBRAL_SEG, MAX_DIST_MM, N_MAX = 0.5, 30, 200000

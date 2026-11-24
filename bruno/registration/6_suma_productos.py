@@ -3,14 +3,14 @@ import numpy as np
 import os
 
 # --- Entradas ---
-RUTA_FIXED = "bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii"
+RUTA_FIXED = "bruno/volumenes/superficial/registro4_1/producto_limpio.nii"
 MOVINGS = [("bruno/volumenes/superficial/registro2_5/producto_limpio.nii", 2),   # (limpio, nro)
            ("bruno/volumenes/superficial/registro5_2/producto_limpio.nii", 5),
            ("bruno/volumenes/superficial/registro3_6/producto_limpio.nii", 3),
-           ("bruno/volumenes/superficial/registro4_1/producto_limpio.nii", 4),
+           ("bruno/volumenes/superficial/registro1_4/producto_penal_limpio.nii", 1),
            ("bruno/volumenes/superficial/registro6_3/producto_limpio.nii", 6)]
-CARPETA = "bruno/volumenes/superficial/1fixed"   # donde están los moving{nro}_transform_bspline.txt
-SALIDA = "suma_1fixed.nii.gz"
+CARPETA = "bruno/volumenes/superficial/4fixed"   # donde están los moving{nro}_transform_bspline.txt
+SALIDA = "suma_4fixed.nii.gz"
 MARGEN_MM = 5
 # -----------------------------
 
