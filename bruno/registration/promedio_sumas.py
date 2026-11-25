@@ -1,26 +1,29 @@
 import itk
 import numpy as np
 import cv2
+import os
 
 # --- Parámetros ---
-RUTA_REF = "bruno/volumenes/superficial/final/2fixed/suma_2fixed.nii.gz"
-OTRAS = [("bruno/volumenes/superficial/final/3fixed/suma_3fixed.nii.gz", 60),
-            ]  # ángulo horario, como en el ICP
-OUT_PROMEDIO = "bruno/volumenes/superficial/final/atlas.nii.gz"
-ITERACIONES = 500   # confirmar
+RUTA_REF = "bruno/volumenes/superficial/3fixed/suma_3fixed.nii.gz"                  # suma elegida como referencia
+OTRAS = [("bruno/volumenes/superficial/2fixed/suma_2fixed.nii.gz", -60, 2),             # (ruta, ángulo horario de la referencia a esa suma)
+         ("bruno/volumenes/superficial/5fixed/suma_5fixed.nii.gz", 120, 5),
+         ("bruno/volumenes/superficial/6fixed/suma_6fixed.nii.gz", 180, 6),
+         ("bruno/volumenes/superficial/4fixed/suma_4fixed.nii.gz", 60, 4)]
+OUT = "bruno/volumenes/superficial/final/atlas"
+ITERACIONES = 30   # confirmar
 # -----------------------------
+os.makedirs(OUT, exist_ok=True)
 
 ref = itk.imread(RUTA_REF, itk.F)
-nz, h, w = itk.array_from_image(ref).shape
-sp = np.array(itk.spacing(ref)); org = np.array(itk.origin(ref))
+ref_np = itk.array_from_image(ref).astype(np.float32)   # (z, y, x)
+nz, h, w = ref_np.shape
+sp, org = np.array(itk.spacing(ref)), np.array(itk.origin(ref))
 D = itk.array_from_matrix(ref.GetDirection())
+G = np.eye(4); G[:3, :3] = D @ np.diag(sp); G[:3, 3] = org   # índice -> mm
 
-# Índice -> mm
-G = np.eye(4); G[:3, :3] = D @ np.diag(sp); G[:3, 3] = org
-
-def guardar_rotacion(angulo, ruta):
-    # Rotación inicial (cv2, alrededor del centro de la grilla) como AffineTransform fixed(mm) -> moving(mm)
-    M = cv2.getRotationMatrix2D(((w - 1) / 2, (h - 1) / 2), -angulo, 1.0)
+def guardar_rotacion(ang, ruta):
+    # Rotación inicial (cv2, centro de la grilla) como AffineTransform fixed(mm) -> moving(mm)
+    M = cv2.getRotationMatrix2D(((w - 1) / 2, (h - 1) / 2), -ang, 1.0)
     Mi = np.eye(4); Mi[:2, :2] = M[:, :2]; Mi[:2, 3] = M[:, 2]
     F = np.linalg.inv(G @ Mi @ np.linalg.inv(G))
     params = " ".join(repr(float(v)) for v in list(F[:3, :3].flatten()) + list(F[:3, 3]))
@@ -50,40 +53,53 @@ def guardar_rotacion(angulo, ruta):
 (ResultImagePixelType "float")
 ''')
 
-# Parámetros del rígido: Euler 3D, MSE, pirámide 8-4-2 sin submuestrear Z
+# Rígido 3D: Euler, MSE, pirámide 8-4-2 sin submuestrear Z
 pm = itk.ParameterObject.New()
-rigido = pm.GetDefaultParameterMap("rigid")
-rigido["Metric"] = ["AdvancedMeanSquares"]
-rigido["NumberOfResolutions"] = ["3"]
-rigido["ImagePyramidSchedule"] = ["8", "8", "1", "4", "4", "1", "2", "2", "1"]
-rigido["MaximumNumberOfIterations"] = [str(ITERACIONES)]
-rigido["NumberOfSpatialSamples"] = ["200000"]
-rigido["ResultImagePixelType"] = ["float"]
-#p["ImageSampler"] = ["Full"] # mas costoso
-pm.AddParameterMap(rigido)
+p = pm.GetDefaultParameterMap("rigid")
+p["Metric"] = ["AdvancedMeanSquares"]
+p["AutomaticTransformInitialization"] = ["false"]   # la inicial viene del archivo
+p["AutomaticScalesEstimation"] = ["true"]
+p["NumberOfResolutions"] = ["3"]
+p["ImagePyramidSchedule"] = ["8", "8", "1", "4", "4", "1", "2", "2", "1"]
+p["MaximumNumberOfIterations"] = [str(ITERACIONES)]
+p["NumberOfSpatialSamples"] = ["200000"]
+p["DefaultPixelValue"] = ["0"]
+p["ImageSampler"] = ["Full"]
+p["ResultImagePixelType"] = ["float"]
+pm.AddParameterMap(p)
 
-alineadas = [itk.array_from_image(ref).astype(np.float32)]
-
-for i, (ruta, ang) in enumerate(OTRAS):
+alineadas = [ref_np]
+for i, (ruta, ang, nro) in enumerate(OTRAS, 1):
     mov = itk.imread(ruta, itk.F)
-    ruta_init = f"transform_inicial_{i}.txt"
+    assert itk.array_from_image(mov).shape == ref_np.shape, f"Distinta forma: {ruta}"
+    mov.CopyInformation(ref)                         # misma geometría que la referencia
+
+    ruta_init = os.path.join(OUT, f"rotacion_inicial_{nro}.txt")
     guardar_rotacion(ang, ruta_init)
 
-    # Rígido partiendo de la rotación inicial
-    _, tp = itk.elastix_registration_method(
+    # Rígido desde la rotación inicial; un solo remuestreo con la cadena completa
+    reg, tp = itk.elastix_registration_method(
         ref, mov, parameter_object=pm,
         initial_transform_parameter_file_name=ruta_init,
         log_to_console=True)
-
-    # Un solo remuestreo con la cadena completa (rotación + rígido)
-    reg = itk.transformix_filter(mov, tp)
     alineadas.append(itk.array_from_image(reg).astype(np.float32))
 
-suma_de_fixeds = np.sum(alineadas, axis=0).astype(np.float32)
-out = itk.image_from_array(suma_de_fixeds)
+    # Guardar cada suma registrada por separado
+    r = itk.image_from_array(alineadas[-1]); r.CopyInformation(ref)
+    itk.imwrite(r, os.path.join(OUT, f"suma_registrada_{nro}.nii.gz"))
+
+    po = itk.ParameterObject.New()
+    po.AddParameterMap(tp.GetParameterMap(0))
+    po.WriteParameterFile(os.path.join(OUT, f"transform_rigido_{nro}.txt"))
+    print(f"Suma {nro} ({ang}°) registrada")
+
+# Suma directa (sin normalizar)
+atlas = np.sum(alineadas, axis=0).astype(np.float32)
+out = itk.image_from_array(atlas)
 out.CopyInformation(ref)
-itk.imwrite(out, OUT_PROMEDIO)
-print("Promedio guardado en", OUT_PROMEDIO)
+itk.imwrite(out, os.path.join(OUT, "atlas_3fixed.nii.gz"))
+print("Atlas guardado en", OUT)
+
 
 #pipeline final
 ##tomar las sumas con los 3 o 6 fixed distintos y registrarlas 

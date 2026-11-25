@@ -4,7 +4,7 @@ import itk
 from vtk.util import numpy_support
 
 # --- Parámetros ---
-RUTA_STL = "bruno/volumenes/superficial/raiz_recortada.stl"
+RUTA_STL = "data/Escaneo 22-7/Raiz resina - 22-7.stl"
 SPACING = (0.156661, 0.156661, 1.318305)   # (x, y, z) mm, escaneo Superficial 001
 GRILLA_ESCANEO = (680, 681, 187)           # (x, y, z) vóxeles del recorte
 FLIP_Z = False                             # True si la tapa quedó abajo respecto del escaneo
